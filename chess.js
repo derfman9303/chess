@@ -93,6 +93,7 @@ class Chess {
 
         this.pieces = [
             new Queen(this.grid, 7, 3, "white"),
+            new Queen(this.grid, 0, 3, "black"),
         ];
     }
 
@@ -155,7 +156,7 @@ class Queen extends Chess {
 
     initializePiece() {
         this.grid[this.row][this.square].innerHTML = this.icon;
-        this.grid[this.row][this.square].setAttribute("data-value", "white");
+        this.grid[this.row][this.square].setAttribute("data-value", this.color);
     }
 
     move(row, square) {
@@ -175,6 +176,8 @@ class Queen extends Chess {
         while (r >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
+            } else {
+                break;
             }
             r--;
         }
@@ -185,6 +188,8 @@ class Queen extends Chess {
         while (r < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
+            } else {
+                break;
             }
             r++;
         }
@@ -195,6 +200,8 @@ class Queen extends Chess {
         while (s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
+            } else {
+                break;
             }
             s--;
         }
@@ -205,6 +212,15 @@ class Queen extends Chess {
         while (s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
+            } else {
+                // Ignore the square the selected piece is currently on
+                if (!(r == this.row && s == this.square)) {
+                    // If the piece belongs to the other player
+                    if (this.grid[r][s].getAttribute("data-value") !== this.getTurn()) {
+                        this.grid[r][s].classList.add("capture");
+                        break;
+                    }
+                }
             }
             s++;
         }
@@ -265,14 +281,20 @@ for (let r = 0; r < chess.grid.length; r++) {
             if (chess.selectedPiece !== null) {
                 if (chess.grid[r][s].classList.contains("highlighted")) {
                     chess.getSelectedPiece().move(r, s);
+                    chess.switchTurns();
                 } else {
                     
                 }
 
                 // Remove highlighting from all squares
-                let squares = document.querySelectorAll(".highlighted");
-                [].forEach.call(squares, function(s) {
+                let highlighted = document.querySelectorAll(".highlighted");
+                [].forEach.call(highlighted, function(s) {
                     s.classList.remove("highlighted");
+                });
+
+                let capture = document.querySelectorAll(".capture");
+                [].forEach.call(capture, function(s) {
+                    s.classList.remove("capture");
                 });
 
                 chess.selectedPiece = null;
