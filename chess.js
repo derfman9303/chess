@@ -169,9 +169,49 @@ class Queen extends Chess {
     }
 
     validMoves() {
-        // up/left diagonal
+        // up
         let r = this.row;
         let s = this.square;
+        while (r >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            }
+            r--;
+        }
+
+        // down
+        r = this.row;
+        s = this.square;
+        while (r < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            }
+            r++;
+        }
+
+        // left
+        r = this.row;
+        s = this.square;
+        while (s >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            }
+            s--;
+        }
+
+        // right
+        r = this.row;
+        s = this.square;
+        while (s < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            }
+            s++;
+        }
+        
+        // up/left diagonal
+        r = this.row;
+        s = this.square;
         while (r >= 0 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
