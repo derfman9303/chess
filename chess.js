@@ -160,6 +160,7 @@ class Queen extends Chess {
 
     move(row, square) {
         this.grid[this.row][this.square].innerHTML = "";
+        this.grid[this.row][this.square].setAttribute("data-value", "");
 
         this.row = row;
         this.square = square;
@@ -189,6 +190,28 @@ class Queen extends Chess {
             r--;
             s++;
         }
+
+        // down/left diagonal
+        r = this.row;
+        s = this.square;
+        while (r < 8 && s >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            }
+            r++;
+            s--;
+        }
+
+        // down/right diagonal
+        r = this.row;
+        s = this.square;
+        while (r < 8 && s < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            }
+            r++;
+            s++;
+        }
     }
 }
 
@@ -207,7 +230,7 @@ for (let r = 0; r < chess.grid.length; r++) {
                 }
 
                 // Remove highlighting from all squares
-                let squares = document.querySelectorAll(".square");
+                let squares = document.querySelectorAll(".highlighted");
                 [].forEach.call(squares, function(s) {
                     s.classList.remove("highlighted");
                 });
