@@ -92,8 +92,8 @@ class Chess {
         this.paintBoard();
 
         this.pieces = [
-            new Queen(this.grid, 7, 3, "white"),
-            new Queen(this.grid, 0, 3, "black"),
+            new Queen(this.grid, 7, 3, "white", this.turn, this.pieces),
+            new Queen(this.grid, 0, 3, "black", this.turn, this.pieces),
         ];
     }
 
@@ -148,8 +148,8 @@ class Chess {
 }
 
 class Queen extends Chess {
-    constructor(grid, row, square, color) {
-        super(grid);
+    constructor(grid, row, square, color, turn, pieces) {
+        super(grid, turn, pieces);
         this.row    = row;
         this.square = square;
         this.color  = color;
@@ -169,9 +169,16 @@ class Queen extends Chess {
         this.grid[this.row][this.square].setAttribute("data-value", this.color);
     }
 
-    move(row, square) {
+    move(row, square, pieces) {
         this.grid[this.row][this.square].innerHTML = "";
         this.grid[this.row][this.square].setAttribute("data-value", "");
+
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].row === row && pieces[p].square === square) {
+                pieces[p].row = -1;
+                pieces[p].square = -1;
+            }
+        }
 
         this.row = row;
         this.square = square;
@@ -298,8 +305,8 @@ for (let r = 0; r < chess.grid.length; r++) {
     for (let s = 0; s < chess.grid[r].length; s++) {
         chess.grid[r][s].addEventListener("click", function() {
             if (chess.selectedPiece !== null) {
-                if (chess.grid[r][s].classList.contains("highlighted")) {
-                    chess.getSelectedPiece().move(r, s);
+                if (chess.grid[r][s].classList.contains("highlighted") || chess.grid[r][s].classList.contains("capture")) {
+                    chess.getSelectedPiece().move(r, s, chess.pieces);
                     chess.switchTurns();
                 } else {
                     
