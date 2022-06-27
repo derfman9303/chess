@@ -100,7 +100,7 @@ class Chess {
     getValidMoves(r, s) {
         for (let p = 0; p < this.pieces.length; p++) {
             if (this.grid[this.pieces[p].row][this.pieces[p].square] === this.grid[r][s]) {
-                this.pieces[p].validMoves();
+                this.pieces[p].validMoves(this.getTurn());
                 this.selectedPiece = p;
             }
         }
@@ -134,6 +134,16 @@ class Chess {
 
     getSelectedPiece() {
         return this.pieces[this.selectedPiece];
+    }
+
+    captureHighlighting(r, s, row, square, turn) {
+        // Ignore the square the selected piece is currently on
+        if (!(r == row && s == square)) {
+            // If the piece belongs to the other player
+            if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.grid[r][s].classList.add("capture");
+            }
+        }
     }
 }
 
@@ -169,14 +179,15 @@ class Queen extends Chess {
         this.initializePiece();
     }
 
-    validMoves() {
+    validMoves(turn) {
         // up
         let r = this.row;
         let s = this.square;
         while (r >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
-            } else {
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
             }
             r--;
@@ -188,7 +199,8 @@ class Queen extends Chess {
         while (r < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
-            } else {
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
             }
             r++;
@@ -200,7 +212,8 @@ class Queen extends Chess {
         while (s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
-            } else {
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
             }
             s--;
@@ -212,15 +225,9 @@ class Queen extends Chess {
         while (s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
-            } else {
-                // Ignore the square the selected piece is currently on
-                if (!(r == this.row && s == this.square)) {
-                    // If the piece belongs to the other player
-                    if (this.grid[r][s].getAttribute("data-value") !== this.getTurn()) {
-                        this.grid[r][s].classList.add("capture");
-                        break;
-                    }
-                }
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
             }
             s++;
         }
@@ -231,6 +238,9 @@ class Queen extends Chess {
         while (r >= 0 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
             }
             r--;
             s--;
@@ -242,6 +252,9 @@ class Queen extends Chess {
         while (r >= 0 && s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
             }
             r--;
             s++;
@@ -253,6 +266,9 @@ class Queen extends Chess {
         while (r < 8 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
             }
             r++;
             s--;
@@ -264,6 +280,9 @@ class Queen extends Chess {
         while (r < 8 && s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
             }
             r++;
             s++;
