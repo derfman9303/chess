@@ -213,6 +213,8 @@ class Queen extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             r--;
         }
@@ -225,6 +227,8 @@ class Queen extends Chess {
                 this.grid[r][s].classList.add("highlighted");
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
             }
             r++;
@@ -239,6 +243,8 @@ class Queen extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             s--;
         }
@@ -252,6 +258,8 @@ class Queen extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             s++;
         }
@@ -264,6 +272,8 @@ class Queen extends Chess {
                 this.grid[r][s].classList.add("highlighted");
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
             }
             r--;
@@ -279,6 +289,8 @@ class Queen extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             r--;
             s++;
@@ -293,6 +305,8 @@ class Queen extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             r++;
             s--;
@@ -306,6 +320,8 @@ class Queen extends Chess {
                 this.grid[r][s].classList.add("highlighted");
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
             }
             r++;
@@ -357,6 +373,8 @@ class Rook extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             r--;
         }
@@ -369,6 +387,8 @@ class Rook extends Chess {
                 this.grid[r][s].classList.add("highlighted");
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
             }
             r++;
@@ -383,6 +403,8 @@ class Rook extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             s--;
         }
@@ -395,6 +417,8 @@ class Rook extends Chess {
                 this.grid[r][s].classList.add("highlighted");
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
             }
             s++;
@@ -446,6 +470,8 @@ class Bishop extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             r--;
             s--;
@@ -459,6 +485,8 @@ class Bishop extends Chess {
                 this.grid[r][s].classList.add("highlighted");
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
             }
             r--;
@@ -474,6 +502,8 @@ class Bishop extends Chess {
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
                 break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
+                break;
             }
             r++;
             s--;
@@ -487,6 +517,8 @@ class Bishop extends Chess {
                 this.grid[r][s].classList.add("highlighted");
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
             }
             r++;
