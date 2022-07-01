@@ -92,6 +92,8 @@ class Chess {
         this.paintBoard();
 
         this.pieces = [
+            new King(this.grid, 7, 4, "white", this.turn, this.pieces),
+            new King(this.grid, 0, 4, "black", this.turn, this.pieces),
             new Queen(this.grid, 7, 3, "white", this.turn, this.pieces),
             new Queen(this.grid, 0, 3, "black", this.turn, this.pieces),
             new Rook(this.grid, 7, 0, "white", this.turn, this.pieces),
@@ -165,6 +167,130 @@ class Chess {
     vacateSquare(row, square) {
         this.grid[row][square].innerHTML = "";
         this.grid[row][square].setAttribute("data-value", "");
+    }
+}
+
+class King extends Chess {
+    constructor(grid, row, square, color, turn, pieces) {
+        super(grid, turn, pieces);
+        this.row    = row;
+        this.square = square;
+        this.color  = color;
+        this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - 
+                        https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M367.1 448H79.97c-26.51 0-48.01 21.49-48.01 47.1C31.96 504.8 
+                        39.13 512 47.96 512h352c8.838 0 16-7.163 16-16C416 469.5 394.5 448 367.1 448zM416.1 160h-160V112h16.01c17.6 0 31.98-14.4 31.98-32C303.1 62.4 289.6 48 272 
+                        48h-16.01V32C256 14.4 241.6 0 223.1 0C206.4 0 191.1 14.4 191.1 32.01V48H175.1c-17.6 0-32.01 14.4-32.01 32C143.1 97.6 158.4 112 175.1 112h16.01V160h-160C17.34 
+                        160 0 171.5 0 192C0 195.2 .4735 198.4 1.437 201.5L74.46 416h299.1l73.02-214.5C447.5 198.4 448 195.2 448 192C448 171.6 430.1 160 416.1 160z"/></svg>`;
+
+        this.initializePiece(this.row, this.square);
+    }
+
+    move(row, square, pieces) {
+        this.vacateSquare(this.row, this.square);
+
+        // If there is already a piece on the square (capture)
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].row === row && pieces[p].square === square) {
+                pieces[p].row = -1;
+                pieces[p].square = -1;
+            }
+        }
+
+        // Update piece position
+        this.row = row;
+        this.square = square;
+
+        this.initializePiece(this.row, this.square);
+    }
+
+    validMoves(turn) {
+        // up
+        let r = this.row - 1;
+        let s = this.square;
+        if (r >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+            }
+        }
+
+        // down
+        r = this.row + 1;
+        s = this.square;
+        if (r < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+            }
+        }
+
+        // left
+        r = this.row;
+        s = this.square - 1;
+        if (s >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+            }
+        }
+
+        // right
+        r = this.row;
+        s = this.square + 1;
+        if (s < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+            }
+        }
+        
+        // up/left diagonal
+        r = this.row - 1;
+        s = this.square - 1;
+        if (r >= 0 && s >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+            }
+        }
+
+        // up/right diagonal
+        r = this.row - 1;
+        s = this.square + 1;
+        if (r >= 0 && s < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+            }
+        }
+
+        // down/left diagonal
+        r = this.row + 1;
+        s = this.square - 1;
+        if (r < 8 && s >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+            }
+        }
+
+        // down/right diagonal
+        r = this.row + 1;
+        s = this.square + 1;
+        if (r < 8 && s < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+            }
+        }
     }
 }
 
