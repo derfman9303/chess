@@ -94,12 +94,23 @@ class Chess {
         this.pieces = [
             new Queen(this.grid, 7, 3, "white", this.turn, this.pieces),
             new Queen(this.grid, 0, 3, "black", this.turn, this.pieces),
+            new Rook(this.grid, 7, 0, "white", this.turn, this.pieces),
+            new Rook(this.grid, 7, 7, "white", this.turn, this.pieces),
+            new Rook(this.grid, 0, 0, "black", this.turn, this.pieces),
+            new Rook(this.grid, 0, 7, "black", this.turn, this.pieces),
+            new Bishop(this.grid, 7, 2, "white", this.turn, this.pieces),
+            new Bishop(this.grid, 7, 5, "white", this.turn, this.pieces),
+            new Bishop(this.grid, 0, 2, "black", this.turn, this.pieces),
+            new Bishop(this.grid, 0, 5, "black", this.turn, this.pieces),
         ];
     }
 
     getValidMoves(r, s) {
         for (let p = 0; p < this.pieces.length; p++) {
-            if (this.grid[this.pieces[p].row][this.pieces[p].square] === this.grid[r][s]) {
+            // Only pay attention to pieces still on the board with this variable
+            const captured = (this.pieces[p].row === -1 || this.pieces[p].square === -1);
+
+            if (!captured && this.grid[this.pieces[p].row][this.pieces[p].square] === this.grid[r][s]) {
                 this.pieces[p].validMoves(this.getTurn());
                 this.selectedPiece = p;
             }
@@ -145,6 +156,16 @@ class Chess {
             }
         }
     }
+
+    initializePiece(row, square) {
+        this.grid[row][square].innerHTML = this.icon;
+        this.grid[row][square].setAttribute("data-value", this.color);
+    }
+
+    vacateSquare(row, square) {
+        this.grid[row][square].innerHTML = "";
+        this.grid[row][square].setAttribute("data-value", "");
+    }
 }
 
 class Queen extends Chess {
@@ -161,18 +182,13 @@ class Queen extends Chess {
                         0-42.25-15.88-47-38.12C207.7 132 202.2 128 196.1 128h-38.75C149.1 128 143.1 134 143.1 141.4c0 18.45-13.73 50.62-47.95 50.62c-34.58 0-34.87-26.39-51.87-26.39c-2.909 
                         0-5.805 .8334-8.432 2.645l-28.63 16C2.509 187.2 0 192.3 0 197.4C0 199.9 .5585 202.3 1.72 204.6L104.2 416h303.5l102.5-211.4C511.4 202.3 511.1 199.8 511.1 197.4z"/></svg>`;
 
-        this.initializePiece();
-    }
-
-    initializePiece() {
-        this.grid[this.row][this.square].innerHTML = this.icon;
-        this.grid[this.row][this.square].setAttribute("data-value", this.color);
+        this.initializePiece(this.row, this.square);
     }
 
     move(row, square, pieces) {
-        this.grid[this.row][this.square].innerHTML = "";
-        this.grid[this.row][this.square].setAttribute("data-value", "");
+        this.vacateSquare(this.row, this.square);
 
+        // If there is already a piece on the square (capture)
         for (let p = 0; p < pieces.length; p++) {
             if (pieces[p].row === row && pieces[p].square === square) {
                 pieces[p].row = -1;
@@ -180,10 +196,11 @@ class Queen extends Chess {
             }
         }
 
+        // Update piece position
         this.row = row;
         this.square = square;
 
-        this.initializePiece();
+        this.initializePiece(this.row, this.square);
     }
 
     validMoves(turn) {
@@ -242,6 +259,187 @@ class Queen extends Chess {
         // up/left diagonal
         r = this.row;
         s = this.square;
+        while (r >= 0 && s >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            }
+            r--;
+            s--;
+        }
+
+        // up/right diagonal
+        r = this.row;
+        s = this.square;
+        while (r >= 0 && s < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            }
+            r--;
+            s++;
+        }
+
+        // down/left diagonal
+        r = this.row;
+        s = this.square;
+        while (r < 8 && s >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            }
+            r++;
+            s--;
+        }
+
+        // down/right diagonal
+        r = this.row;
+        s = this.square;
+        while (r < 8 && s < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            }
+            r++;
+            s++;
+        }
+    }
+}
+
+class Rook extends Chess {
+    constructor(grid, row, square, color, turn, pieces) {
+        super(grid, turn, pieces);
+        this.row    = row;
+        this.square = square;
+        this.color  = color;
+        this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - 
+                        https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M368 32h-56c-8.875 0-16 
+                        7.125-16 16V96h-48V48c0-8.875-7.125-16-16-16h-80c-8.875 0-16 7.125-16 16V96H88.12V48c0-8.875-7.25-16-16-16H16C7.125 32 0 39.12 0 48V224l64 32c0 
+                        48.38-1.5 95-13.25 160h282.5C321.5 351 320 303.8 320 256l64-32V48C384 39.12 376.9 32 368 32zM224 320H160V256c0-17.62 14.38-32 32-32s32 14.38 32 
+                        32V320zM336 448H47.1C21.49 448 0 469.5 0 495.1C0 504.8 7.163 512 16 512h352c8.837 0 16-7.163 16-16C384 469.5 362.5 448 336 448z"/></svg>`;
+
+        this.initializePiece(this.row, this.square);
+    }
+
+    move(row, square, pieces) {
+        this.vacateSquare(this.row, this.square);
+
+        // If there is already a piece on the square (capture)
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].row === row && pieces[p].square === square) {
+                pieces[p].row = -1;
+                pieces[p].square = -1;
+            }
+        }
+
+        // Update piece position
+        this.row = row;
+        this.square = square;
+
+        this.initializePiece(this.row, this.square);
+    }
+
+    validMoves(turn) {
+        // up
+        let r = this.row;
+        let s = this.square;
+        while (r >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            }
+            r--;
+        }
+
+        // down
+        r = this.row;
+        s = this.square;
+        while (r < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            }
+            r++;
+        }
+
+        // left
+        r = this.row;
+        s = this.square;
+        while (s >= 0) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            }
+            s--;
+        }
+
+        // right
+        r = this.row;
+        s = this.square;
+        while (s < 8) {
+            if (this.grid[r][s].getAttribute("data-value") == "") {
+                this.grid[r][s].classList.add("highlighted");
+            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
+                this.captureHighlighting(r, s, this.row, this.square, turn);
+                break;
+            }
+            s++;
+        }
+    }
+}
+
+class Bishop extends Chess {
+    constructor(grid, row, square, color, turn, pieces) {
+        super(grid, turn, pieces);
+        this.row    = row;
+        this.square = square;
+        this.color  = color;
+        this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - 
+                        https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M272 448h-224C21.49 448 0 469.5 0 496C0 504.8 7.164 
+                        512 16 512h288c8.836 0 16-7.164 16-16C320 469.5 298.5 448 272 448zM8 287.9c0 51.63 22.12 73.88 56 84.63V416h192v-43.5c33.88-10.75 56-33 
+                        56-84.63c0-30.62-10.75-67.13-26.75-102.5L185 285.6c-1.565 1.565-3.608 2.349-5.651 2.349c-2.036 0-4.071-.7787-5.63-2.339l-11.35-11.27c-1.56-1.56-2.339-3.616-2.339-5.672c0-2.063 
+                        .7839-4.128 2.349-5.693l107.9-107.9C249.5 117.3 223.8 83 199.4 62.5C213.4 59.13 224 47 224 32c0-17.62-14.38-32-32-32H128C110.4 0 96 14.38 96 32c0 
+                        15 10.62 27.12 24.62 30.5C67.75 106.8 8 214.5 8 287.9z"/></svg>`;
+
+        this.initializePiece(this.row, this.square);
+    }
+
+    move(row, square, pieces) {
+        this.vacateSquare(this.row, this.square);
+
+        // If there is already a piece on the square (capture)
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].row === row && pieces[p].square === square) {
+                pieces[p].row = -1;
+                pieces[p].square = -1;
+            }
+        }
+
+        // Update piece position
+        this.row = row;
+        this.square = square;
+
+        this.initializePiece(this.row, this.square);
+    }
+
+    validMoves(turn) {
+        // up/left diagonal
+        let r = this.row;
+        let s = this.square;
         while (r >= 0 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
                 this.grid[r][s].classList.add("highlighted");
