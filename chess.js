@@ -133,7 +133,7 @@ class Chess {
             const captured = (this.pieces[p].row === -1 || this.pieces[p].square === -1);
 
             if (!captured && this.grid[this.pieces[p].row][this.pieces[p].square] === this.grid[r][s]) {
-                this.pieces[p].validMoves(this.getTurn());
+                this.pieces[p].validMoves(this.getTurn(), this.pieces);
                 this.selectedPiece = p;
             }
         }
@@ -169,6 +169,7 @@ class Chess {
         return this.pieces[this.selectedPiece];
     }
 
+    // This function needs to be refactored. Probably isn't needed
     captureHighlighting(r, s, row, square, turn) {
         // Ignore the square the selected piece is currently on
         if (!(r == row && s == square)) {
@@ -179,8 +180,8 @@ class Chess {
         }
     }
 
-    initializePiece(row, square) {
-        this.grid[row][square].innerHTML = this.icon;
+    initializePiece(row, square, icon = this.icon) {
+        this.grid[row][square].innerHTML = icon;
         this.grid[row][square].setAttribute("data-value", this.color);
     }
 
@@ -196,6 +197,8 @@ class King extends Chess {
         this.row    = row;
         this.square = square;
         this.color  = color;
+        this.moved  = false;
+        this.type   = 'king';
         this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - 
                         https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M367.1 448H79.97c-26.51 0-48.01 21.49-48.01 47.1C31.96 504.8 
                         39.13 512 47.96 512h352c8.838 0 16-7.163 16-16C416 469.5 394.5 448 367.1 448zM416.1 160h-160V112h16.01c17.6 0 31.98-14.4 31.98-32C303.1 62.4 289.6 48 272 
@@ -221,9 +224,38 @@ class King extends Chess {
         this.square = square;
 
         this.initializePiece(this.row, this.square);
+        this.moved = true;
     }
 
-    validMoves(turn) {
+    castle(row, square, pieces) {
+        this.vacateSquare(this.row, this.square);
+
+        // Move the rook
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].row === row && pieces[p].square === square) {
+                this.vacateSquare(pieces[p].row, pieces[p].square);
+                if (square === 7) {
+                    pieces[p].square -= 2;
+                } else if (square === 0) {
+                    pieces[p].square += 2;
+                }
+                this.initializePiece(pieces[p].row, pieces[p].square, pieces[p].icon);
+                pieces[p].moved = true;
+            }
+        }
+
+        // Move the king
+        if (square === 7) {
+            this.square += 2;
+        } else if (square === 0) {
+            this.square -= 3;
+        }
+
+        this.initializePiece(this.row, this.square);
+        this.moved = true;
+    }
+
+    validMoves(turn, pieces) {
         // up
         let r = this.row - 1;
         let s = this.square;
@@ -311,6 +343,28 @@ class King extends Chess {
                 this.captureHighlighting(r, s, this.row, this.square, turn);
             }
         }
+
+        if (!this.moved) {
+            r = this.row;
+            s = this.square;
+            // left castle
+            if (this.grid[r][s - 1].getAttribute("data-value") == "" && this.grid[r][s - 2].getAttribute("data-value") == "" && this.grid[r][s - 3].getAttribute("data-value") == "" && this.grid[r][s - 4].getAttribute("data-value") === turn) {
+                for (let p = 0; p < pieces.length; p++) {
+                    if (pieces[p].row === r && pieces[p].square === s - 4 && pieces[p].type === 'rook' && !pieces[p].moved) {
+                        this.grid[r][s - 4].classList.add("castle");
+                    }
+                }    
+            }
+    
+            // right castle
+            if (this.grid[r][s + 1].getAttribute("data-value") == "" && this.grid[r][s + 2].getAttribute("data-value") == "" && this.grid[r][s + 3].getAttribute("data-value") === turn) {
+                for (let p = 0; p < pieces.length; p++) {
+                    if (pieces[p].row === r && pieces[p].square === s + 3 && pieces[p].type === 'rook' && !pieces[p].moved) {
+                        this.grid[r][s + 3].classList.add("castle");
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -320,6 +374,7 @@ class Queen extends Chess {
         this.row    = row;
         this.square = square;
         this.color  = color;
+        this.type   = 'queen';
         this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com 
                         License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M256 112c30.88 0 56-25.12 
                         56-56S286.9 0 256 0S199.1 25.12 199.1 56S225.1 112 256 112zM399.1 448H111.1c-26.51 0-48 21.49-48 47.1C63.98 504.8 71.15 512 79.98 512h352c8.837 0 16-7.163 
@@ -482,6 +537,8 @@ class Rook extends Chess {
         this.row    = row;
         this.square = square;
         this.color  = color;
+        this.moved  = false;
+        this.type   = 'rook';
         this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - 
                         https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M368 32h-56c-8.875 0-16 
                         7.125-16 16V96h-48V48c0-8.875-7.125-16-16-16h-80c-8.875 0-16 7.125-16 16V96H88.12V48c0-8.875-7.25-16-16-16H16C7.125 32 0 39.12 0 48V224l64 32c0 
@@ -507,6 +564,7 @@ class Rook extends Chess {
         this.square = square;
 
         this.initializePiece(this.row, this.square);
+        this.moved = true;
     }
 
     validMoves(turn) {
@@ -578,6 +636,7 @@ class Knight extends Chess {
         this.row    = row;
         this.square = square;
         this.color  = color;
+        this.type   = 'knight';
         this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - 
                         https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M19 272.5l40.62 18C63.78 292.3 68.25 293.3 72.72 
                         293.3c4 0 8.001-.7543 11.78-2.289l12.75-5.125c9.125-3.625 16-11.12 18.75-20.5L125.2 234.8C127 227.9 131.5 222.2 137.9 219.1L160 208v50.38C160 276.5 
@@ -703,6 +762,7 @@ class Bishop extends Chess {
         this.row    = row;
         this.square = square;
         this.color  = color;
+        this.type   = 'bishop';
         this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - 
                         https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M272 448h-224C21.49 448 0 469.5 0 496C0 504.8 7.164 
                         512 16 512h288c8.836 0 16-7.164 16-16C320 469.5 298.5 448 272 448zM8 287.9c0 51.63 22.12 73.88 56 84.63V416h192v-43.5c33.88-10.75 56-33 
@@ -805,6 +865,7 @@ class Pawn extends Chess {
         this.square = square;
         this.color  = color;
         this.moved  = false;
+        this.type   = 'pawn';
         this.icon   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - 
                         https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="` + color + `" d="M105.1 224H80C71.12 224 64 231.1 64 240v32c0 8.875 7.125 
                         15.1 16 15.1L96 288v5.5C96 337.5 91.88 380.1 72 416h176C228.1 380.1 224 337.5 224 293.5V288l16-.0001c8.875 0 16-7.125 16-15.1v-32C256 231.1 248.9 224 240 
@@ -926,8 +987,9 @@ for (let r = 0; r < chess.grid.length; r++) {
                 if (chess.grid[r][s].classList.contains("highlighted") || chess.grid[r][s].classList.contains("capture")) {
                     chess.getSelectedPiece().move(r, s, chess.pieces);
                     chess.switchTurns();
-                } else {
-                    
+                } else if (chess.grid[r][s].classList.contains("castle")) {
+                    chess.getSelectedPiece().castle(r, s, chess.pieces);
+                    chess.switchTurns();
                 }
 
                 // Remove highlighting from all squares
@@ -939,6 +1001,11 @@ for (let r = 0; r < chess.grid.length; r++) {
                 let capture = document.querySelectorAll(".capture");
                 [].forEach.call(capture, function(s) {
                     s.classList.remove("capture");
+                });
+
+                let castle = document.querySelectorAll(".castle");
+                [].forEach.call(castle, function(s) {
+                    s.classList.remove("castle");
                 });
 
                 chess.selectedPiece = null;
