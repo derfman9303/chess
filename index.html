@@ -81,9 +81,25 @@
             <div data-value="" class="square"></div>
         </div>
     </div>
+    <div id="overlay" class="hidden"></div>
+    <div id="modal" class="hidden">
+        <h4>Select a new piece:</h4>
+        <div id="modal-row">
+            <div id="queen" class="modal-square light"></div>
+            <div id="rook" class="modal-square dark"></div>
+            <div id="knight" class="modal-square light"></div>
+            <div id="bishop" class="modal-square dark"></div>
+        </div>
+    </div>
 </body>
 
 <style>
+    body {
+        overflow: hidden;
+        margin-top: 0;
+        font-family: sans-serif;
+    }
+
     #board {
         position: absolute;
         top: 50%;
@@ -130,6 +146,49 @@
     .castle {
         background-color: #4cb2e6;
         border: 1px solid #4cb2e6;
+    }
+
+    #overlay {
+        position: absolute;
+        height: 100vh;
+        width: 100vw;
+        background-color: black;
+        opacity: 0.5;
+    }
+
+    #modal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    #modal-row {
+        display: flex;
+        flex-direction: row;
+    }
+
+    #modal h4 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+
+    .modal-square {
+        height: 70px;
+        width: 70px;
+    }
+
+    .modal-square svg {
+        height: calc(100% - 20px);
+        width: calc(100% - 20px);
+        padding: 10px;
+    }
+
+    .hidden {
+        display: none;
     }
 </style>
 
