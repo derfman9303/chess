@@ -1039,13 +1039,15 @@ class Pawn extends Chess {
     }
 
     validMoves(turn) {
+        let validMoves = {};
+
         if (turn === "white") {
             // forward 1
             let r = this.row - 1;
             let s = this.square;
             if (r >= 0) {
                 if (this.grid[r][s].getAttribute("data-value") == "") {
-                    this.grid[r][s].classList.add("highlighted");
+                    validMoves[r + ',' + s] = 'highlighted';
                 }
             }
 
@@ -1055,7 +1057,7 @@ class Pawn extends Chess {
                 s = this.square;
                 if (r >= 0) {
                     if (this.grid[r][s].getAttribute("data-value") == "") {
-                        this.grid[r][s].classList.add("highlighted");
+                        validMoves[r + ',' + s] = 'highlighted';
                     }
                 }
             }
@@ -1065,7 +1067,7 @@ class Pawn extends Chess {
             s = this.square - 1;
             if (r >= 0 && s >= 0) {
                 if (this.grid[r][s].getAttribute("data-value") === "black") {
-                    this.captureHighlighting(r, s, this.row, this.square, turn);
+                    validMoves[r + ',' + s] = 'capture';
                 }
             }
 
@@ -1074,7 +1076,7 @@ class Pawn extends Chess {
             s = this.square + 1;
             if (r >= 0 && s < 8) {
                 if (this.grid[r][s].getAttribute("data-value") === "black") {
-                    this.captureHighlighting(r, s, this.row, this.square, turn);
+                    validMoves[r + ',' + s] = 'capture';
                 }
             }
         } else {
@@ -1083,7 +1085,7 @@ class Pawn extends Chess {
             let s = this.square;
             if (r < 8) {
                 if (this.grid[r][s].getAttribute("data-value") == "") {
-                    this.grid[r][s].classList.add("highlighted");
+                    validMoves[r + ',' + s] = 'highlighted';
                 }
             }
 
@@ -1093,7 +1095,7 @@ class Pawn extends Chess {
                 s = this.square;
                 if (r < 8) {
                     if (this.grid[r][s].getAttribute("data-value") == "") {
-                        this.grid[r][s].classList.add("highlighted");
+                        validMoves[r + ',' + s] = 'highlighted';
                     }
                 }
             }
@@ -1103,7 +1105,7 @@ class Pawn extends Chess {
             s = this.square - 1;
             if (r < 8 && s >= 0) {
                 if (this.grid[r][s].getAttribute("data-value") === "white") {
-                    this.captureHighlighting(r, s, this.row, this.square, turn);
+                    validMoves[r + ',' + s] = 'capture';
                 }
             }
 
@@ -1112,10 +1114,12 @@ class Pawn extends Chess {
             s = this.square + 1;
             if (r < 8 && s < 8) {
                 if (this.grid[r][s].getAttribute("data-value") === "white") {
-                    this.captureHighlighting(r, s, this.row, this.square, turn);
+                    validMoves[r + ',' + s] = 'capture';
                 }
             }
         }
+
+        return validMoves;
     }
 }
 
