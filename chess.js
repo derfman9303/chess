@@ -638,14 +638,16 @@ class Rook extends Chess {
     }
 
     validMoves(turn) {
+        let validMoves = {};
+
         // up
         let r = this.row;
         let s = this.square;
         while (r >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
                 break;
             } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
@@ -658,9 +660,9 @@ class Rook extends Chess {
         s = this.square;
         while (r < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
                 break;
             } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
@@ -673,9 +675,9 @@ class Rook extends Chess {
         s = this.square;
         while (s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
                 break;
             } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
@@ -688,15 +690,17 @@ class Rook extends Chess {
         s = this.square;
         while (s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
                 break;
             } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
                 break;
             }
             s++;
         }
+
+        return validMoves;
     }
 }
 
