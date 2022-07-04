@@ -735,14 +735,16 @@ class Knight extends Chess {
     }
 
     validMoves(turn) {
+        let validMoves = {};
+
         // up 1
         let r = this.row - 2;
         let s = this.square - 1;
         if (r >= 0 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -751,9 +753,9 @@ class Knight extends Chess {
         s = this.square + 1;
         if (r >= 0 && s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -762,9 +764,9 @@ class Knight extends Chess {
         s = this.square - 1;
         if (r < 8 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -773,9 +775,9 @@ class Knight extends Chess {
         s = this.square + 1;
         if (r < 8 && s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -784,9 +786,9 @@ class Knight extends Chess {
         s = this.square - 2;
         if (r < 8 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -795,9 +797,9 @@ class Knight extends Chess {
         s = this.square - 2;
         if (r >= 0 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -806,9 +808,9 @@ class Knight extends Chess {
         s = this.square + 2;
         if (r >= 0 && s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -817,11 +819,13 @@ class Knight extends Chess {
         s = this.square + 2;
         if (r < 8 && s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
+
+        return validMoves;
     }
 }
 
