@@ -133,7 +133,17 @@ class Chess {
             const captured = (this.pieces[p].row < 0 || this.pieces[p].square < 0);
 
             if (!captured && this.grid[this.pieces[p].row][this.pieces[p].square] === this.grid[r][s]) {
-                this.pieces[p].validMoves(this.getTurn(), this.pieces);
+                let validMoves = this.pieces[p].validMoves(this.getTurn(), this.pieces);
+
+                if (validMoves) {
+                    Object.keys(validMoves).forEach(key => {
+                        let r = key.split(',')[0];
+                        let s = key.split(',')[1];
+
+                        this.grid[r][s].classList.add(validMoves[key]);
+                    });
+                }
+
                 this.selectedPiece = p;
             }
         }
@@ -246,6 +256,18 @@ class Chess {
     }
 }
 
+class AI extends Chess {
+    constructor() {
+
+    }
+
+    getMove(pieces) {
+        for (let p = 0; p < pieces.length; p++) {
+
+        }
+    }
+}
+
 class King extends Chess {
     constructor(grid, row, square, color, turn, pieces) {
         super(grid, turn, pieces);
@@ -307,14 +329,15 @@ class King extends Chess {
     }
 
     validMoves(turn, pieces) {
+        let validMoves = {};
         // up
         let r = this.row - 1;
         let s = this.square;
         if (r >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -323,9 +346,9 @@ class King extends Chess {
         s = this.square;
         if (r < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -334,9 +357,9 @@ class King extends Chess {
         s = this.square - 1;
         if (s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -345,9 +368,9 @@ class King extends Chess {
         s = this.square + 1;
         if (s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
         
@@ -356,9 +379,9 @@ class King extends Chess {
         s = this.square - 1;
         if (r >= 0 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -367,9 +390,9 @@ class King extends Chess {
         s = this.square + 1;
         if (r >= 0 && s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -378,9 +401,9 @@ class King extends Chess {
         s = this.square - 1;
         if (r < 8 && s >= 0) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -389,9 +412,9 @@ class King extends Chess {
         s = this.square + 1;
         if (r < 8 && s < 8) {
             if (this.grid[r][s].getAttribute("data-value") == "") {
-                this.grid[r][s].classList.add("highlighted");
+                validMoves[r + ',' + s] = 'highlighted';
             } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.captureHighlighting(r, s, this.row, this.square, turn);
+                validMoves[r + ',' + s] = 'capture';
             }
         }
 
@@ -416,6 +439,8 @@ class King extends Chess {
                 }
             }
         }
+
+        return validMoves;
     }
 }
 
