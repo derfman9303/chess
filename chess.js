@@ -4,6 +4,7 @@ class Chess {
         this.turn          = true;
         this.selectedPiece = null;
         this.squares       = document.getElementsByClassName('square');
+        this.singlePlayer  = true; 
         this.grid          = [
             [
                 this.squares[0],
@@ -256,15 +257,31 @@ class Chess {
     }
 }
 
-class AI extends Chess {
+class Ai extends Chess {
     constructor() {
-
+        super();
     }
 
     getMove(pieces) {
-        for (let p = 0; p < pieces.length; p++) {
+        let blackPieces = [];
 
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].color === "black" && pieces[p].row >= 0 && pieces[p].square >= 0 && Object.keys(pieces[p].validMoves("black", pieces)).length > 0) {
+                blackPieces.push(pieces[p]);
+            }
         }
+
+        const randomIndex = Math.floor(Math.random() * blackPieces.length);
+        const validMoves  = blackPieces[randomIndex].validMoves("black", pieces);
+
+        let correctIndex = randomIndex; 
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p] === blackPieces[randomIndex]) {
+                correctIndex = p;
+            }
+        }
+
+        return (correctIndex + "," + Object.keys(validMoves)[0]);
     }
 }
 
@@ -1125,8 +1142,10 @@ class Pawn extends Chess {
 
 
 let chess = new Chess();
+let ai    = new Ai();
 
 chess.initializeBoard();
+
 
 for (let r = 0; r < chess.grid.length; r++) {
     for (let s = 0; s < chess.grid[r].length; s++) {
@@ -1155,6 +1174,22 @@ for (let r = 0; r < chess.grid.length; r++) {
                 [].forEach.call(castle, function(s) {
                     s.classList.remove("castle");
                 });
+
+                // Have AI make its move for black
+                if (chess.singlePlayer && chess.getTurn() === "black") {
+                    let aiMove = ai.getMove(chess.pieces).split(",");
+
+                    // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
+                    const aiPiece  = aiMove[0];
+                    const aiRow    = aiMove[1];
+                    const aiSquare = aiMove[2];
+
+                    setTimeout(function() {
+                        chess.pieces[aiPiece].move(aiRow, aiSquare, chess.pieces);
+                    }, 1000);
+
+                    chess.switchTurns();
+                }
 
                 chess.selectedPiece = null;
             } else {
