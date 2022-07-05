@@ -1187,9 +1187,9 @@ for (let r = 0; r < chess.grid.length; r++) {
                     let aiMove = ai.getMove(chess.pieces);
 
                     if (aiMove) {
+                        // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
                         aiMove = aiMove.split(",");
 
-                        // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
                         const aiPiece  = parseInt(aiMove[0]);
                         const aiRow    = parseInt(aiMove[1]);
                         const aiSquare = parseInt(aiMove[2]);
