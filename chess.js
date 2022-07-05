@@ -271,17 +271,23 @@ class Ai extends Chess {
             }
         }
 
-        const randomIndex = Math.floor(Math.random() * blackPieces.length);
-        const validMoves  = blackPieces[randomIndex].validMoves("black", pieces);
+        if (blackPieces.length > 0) {
+            const randomIndex = Math.floor(Math.random() * blackPieces.length);
 
-        let correctIndex = randomIndex; 
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p] === blackPieces[randomIndex]) {
-                correctIndex = p;
+            let correctIndex = null;
+            for (let i = 0; i < pieces.length; i++) {
+                if (pieces[i] === blackPieces[randomIndex]) {
+                    correctIndex = i;
+                    break;
+                }
             }
+    
+            const validMoves = pieces[correctIndex].validMoves("black", pieces);
+    
+            return (correctIndex + "," + Object.keys(validMoves)[0]);
+        } else {
+            return false;
         }
-
-        return (correctIndex + "," + Object.keys(validMoves)[0]);
     }
 }
 
@@ -478,7 +484,7 @@ class Queen extends Chess {
 
         // If there is already a piece on the square (capture)
         for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row === row && pieces[p].square === square) {
+            if (pieces[p].row == row && pieces[p].square == square) {
                 pieces[p].row = -1;
                 pieces[p].square = -1;
             }
@@ -1142,7 +1148,7 @@ class Pawn extends Chess {
 
 
 let chess = new Chess();
-let ai    = new Ai();
+let ai    = new Ai(chess.pieces);
 
 chess.initializeBoard();
 
@@ -1159,43 +1165,45 @@ for (let r = 0; r < chess.grid.length; r++) {
                     chess.switchTurns();
                 }
 
+                chess.selectedPiece = null;
+
                 // Remove highlighting from all squares
                 let highlighted = document.querySelectorAll(".highlighted");
+                let capture     = document.querySelectorAll(".capture");
+                let castle      = document.querySelectorAll(".castle");
+
                 [].forEach.call(highlighted, function(s) {
                     s.classList.remove("highlighted");
                 });
-
-                let capture = document.querySelectorAll(".capture");
                 [].forEach.call(capture, function(s) {
                     s.classList.remove("capture");
                 });
-
-                let castle = document.querySelectorAll(".castle");
                 [].forEach.call(castle, function(s) {
                     s.classList.remove("castle");
                 });
 
                 // Have AI make its move for black
                 if (chess.singlePlayer && chess.getTurn() === "black") {
-                    let aiMove = ai.getMove(chess.pieces).split(",");
+                    let aiMove = ai.getMove(chess.pieces);
 
-                    // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
-                    const aiPiece  = aiMove[0];
-                    const aiRow    = aiMove[1];
-                    const aiSquare = aiMove[2];
+                    if (aiMove) {
+                        aiMove = aiMove.split(",");
 
-                    setTimeout(function() {
-                        chess.pieces[aiPiece].move(aiRow, aiSquare, chess.pieces);
-                    }, 1000);
+                        // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
+                        const aiPiece  = parseInt(aiMove[0]);
+                        const aiRow    = parseInt(aiMove[1]);
+                        const aiSquare = parseInt(aiMove[2]);
 
-                    chess.switchTurns();
+                        setTimeout(function() {
+                            chess.pieces[aiPiece].move(aiRow, aiSquare, chess.pieces);
+                            chess.switchTurns();
+                        }, 1000);
+                    }
                 }
-
-                chess.selectedPiece = null;
             } else {
                 if (chess.grid[r][s].getAttribute("data-value") === chess.getTurn()) {
                     chess.getValidMoves(r, s);
-                } 
+                }
             }
         });
     }
