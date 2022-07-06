@@ -260,11 +260,27 @@ class Chess {
 class Ai extends Chess {
     constructor() {
         super();
+
+        this.kingVal   = 900;
+        this.queenVal  = 90;
+        this.rookVal   = 50; 
+        this.bishopVal = 30;
+        this.knightVal = 30;
+        this.pawnVal   = 10;
     }
 
+    /**
+     * Main function of the AI. Will return the coords of the desired piece to be moved in a string format. Example: '{piece index},{row},{square}'.
+     * Needs to be split by the comma, and converted into integers once received.
+     * piece index refers to the pieces index in the pieces array, row and square are the desired new coords
+     * @param {*} pieces 
+     * @returns 
+     */
     getMove(pieces) {
-        let blackPieces = [];
+        let blackPieces    = [];
+        let availableMoves = {};
 
+        // Adds all the AI's pieces with valid moves to a new array
         for (let p = 0; p < pieces.length; p++) {
             if (pieces[p].color === "black" && pieces[p].row >= 0 && pieces[p].square >= 0 && Object.keys(pieces[p].validMoves("black", pieces)).length > 0) {
                 blackPieces.push(pieces[p]);
@@ -272,22 +288,125 @@ class Ai extends Chess {
         }
 
         if (blackPieces.length > 0) {
-            const randomIndex = Math.floor(Math.random() * blackPieces.length);
+            for (let b = 0; b < blackPieces.length; b++) {
+                const oldRow     = blackPieces[b].row;
+                const oldSquare  = blackPieces[b].square;
+                const validMoves = Object.keys(blackPieces[b].validMoves('black', pieces));
 
-            let correctIndex = null;
-            for (let i = 0; i < pieces.length; i++) {
-                if (pieces[i] === blackPieces[randomIndex]) {
-                    correctIndex = i;
-                    break;
+                for (let v = 0; v < validMoves.length; v++) {
+                    let validMove = validMoves[v].split(",");
+                    let newRow    = parseInt(validMove[0]);
+                    let newSquare = parseInt(validMove[1]);
+
+                    // Move piece temporarily
+                    let captured = this.capturePiece(newRow, newSquare, pieces);
+                    blackPieces[b].row    = newRow;
+                    blackPieces[b].square = newSquare;
+
+                    // Get value of updated board, save to availableMoves
+                    availableMoves[oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare] = this.getBoardValue(pieces);
+
+                    // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                    blackPieces[b].row    = oldRow;
+                    blackPieces[b].square = oldSquare;
+                    if (captured) {
+                        pieces[captured].row    = newRow;
+                        pieces[captured].square = newSquare;
+                    }
                 }
             }
-    
-            const validMoves = pieces[correctIndex].validMoves("black", pieces);
-    
-            return (correctIndex + "," + Object.keys(validMoves)[0]);
+
+            let min = Math.min(...Object.values(availableMoves));
+            let preferredMoves = {};
+
+            for (const move in availableMoves) {
+                if (availableMoves[move] === min) {
+                    preferredMoves[move] = availableMoves[move];
+                }
+            }
+
+            const preferredMoveKeys = Object.keys(preferredMoves);
+            const randomIndex       = Math.floor(Math.random() * preferredMoveKeys.length);
+            const selectedMove      = preferredMoveKeys[randomIndex].split(',');
+            
+            return [this.getPieceIndex(selectedMove[0], selectedMove[1], pieces), selectedMove[2], selectedMove[3]];
         } else {
             return false;
         }
+    }
+
+    getPieceIndex(row, square, pieces) {
+        let result = null;
+
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].row == row && pieces[p].square == square) {
+                result = p;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Sets a piece to captured if it exists on the x/y coords, and returns true if it did capture a piece. False otherwise
+     * @param {*} row 
+     * @param {*} square 
+     * @param {*} pieces 
+     * @returns 
+     */
+    capturePiece(row, square, pieces) {
+        let result = false;
+
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].row === row && pieces[p].square === square && pieces[p].color === "white") {
+                pieces[p].row = -1;
+                pieces[p].square = -1;
+
+                result = p;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Adds up the total value of all pieces on the board
+     * @param {*} pieces 
+     * @returns 
+     */
+    getBoardValue(pieces) {
+        let result = 0;
+
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].row >= 0 && pieces[p].square >= 0) {
+                switch (pieces[p].type) {
+                    case "king":
+                        result += pieces[p].color === "white" ? this.kingVal : -Math.abs(this.kingVal);
+                        break;
+                    case "queen":
+                        result += pieces[p].color === "white" ? this.queenVal : -Math.abs(this.queenVal);
+                        break;
+                    case "rook":
+                        result += pieces[p].color === "white" ? this.rookVal : -Math.abs(this.rookVal);
+                        break;
+                    case "bishop":
+                        result += pieces[p].color === "white" ? this.bishopVal : -Math.abs(this.bishopVal);
+                        break;
+                    case "knight":
+                        result += pieces[p].color === "white" ? this.knightVal : -Math.abs(this.knightVal);
+                        break;
+                    case "pawn":
+                        result += pieces[p].color === "white" ? this.pawnVal : -Math.abs(this.pawnVal);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return result;
     }
 }
 
@@ -1188,8 +1307,6 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                     if (aiMove) {
                         // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
-                        aiMove = aiMove.split(",");
-
                         const aiPiece  = parseInt(aiMove[0]);
                         const aiRow    = parseInt(aiMove[1]);
                         const aiSquare = parseInt(aiMove[2]);
