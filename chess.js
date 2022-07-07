@@ -276,22 +276,15 @@ class Ai extends Chess {
      * @param {*} pieces 
      * @returns 
      */
-    getMove(pieces) {
-        let blackPieces    = [];
+    getMove(turn, pieces) {
+        let validPieces = this.getValidPieces(turn, pieces);
         let availableMoves = {};
 
-        // Adds all the AI's pieces with valid moves to a new array
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].color === "black" && pieces[p].row >= 0 && pieces[p].square >= 0 && Object.keys(pieces[p].validMoves("black", pieces)).length > 0) {
-                blackPieces.push(pieces[p]);
-            }
-        }
-
-        if (blackPieces.length > 0) {
-            for (let b = 0; b < blackPieces.length; b++) {
-                const oldRow     = blackPieces[b].row;
-                const oldSquare  = blackPieces[b].square;
-                const validMoves = Object.keys(blackPieces[b].validMoves('black', pieces));
+        if (validPieces.length > 0) {
+            for (let b = 0; b < validPieces.length; b++) {
+                const oldRow     = validPieces[b].row;
+                const oldSquare  = validPieces[b].square;
+                const validMoves = Object.keys(validPieces[b].validMoves('black', pieces));
 
                 for (let v = 0; v < validMoves.length; v++) {
                     let validMove = validMoves[v].split(",");
@@ -300,15 +293,15 @@ class Ai extends Chess {
 
                     // Move piece temporarily
                     let captured = this.capturePiece(newRow, newSquare, pieces);
-                    blackPieces[b].row    = newRow;
-                    blackPieces[b].square = newSquare;
+                    validPieces[b].row    = newRow;
+                    validPieces[b].square = newSquare;
 
                     // Get value of updated board, save to availableMoves
                     availableMoves[oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare] = this.getBoardValue(pieces);
 
                     // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
-                    blackPieces[b].row    = oldRow;
-                    blackPieces[b].square = oldSquare;
+                    validPieces[b].row    = oldRow;
+                    validPieces[b].square = oldSquare;
                     if (captured) {
                         pieces[captured].row    = newRow;
                         pieces[captured].square = newSquare;
@@ -333,6 +326,24 @@ class Ai extends Chess {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Returns an array containing the pieces belonging to a given color, that are currently able to make a valid move
+     * @param {*} color 
+     * @param {*} pieces 
+     * @returns 
+     */
+    getValidPieces(color, pieces) {
+        let result = [];
+
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].color === color && pieces[p].row >= 0 && pieces[p].square >= 0 && Object.keys(pieces[p].validMoves(color, pieces)).length > 0) {
+                result.push(pieces[p]);
+            }
+        }
+
+        return result;
     }
 
     getPieceIndex(row, square, pieces) {
@@ -1303,7 +1314,7 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                 // Have AI make its move for black
                 if (chess.singlePlayer && chess.getTurn() === "black") {
-                    let aiMove = ai.getMove(chess.pieces);
+                    let aiMove = ai.getMove('black', chess.pieces);
 
                     if (aiMove) {
                         // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
