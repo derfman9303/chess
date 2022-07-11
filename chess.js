@@ -221,10 +221,10 @@ class Chess {
         this.turn = !this.turn;
     }
 
-    getTurn() {
+    getTurn(turn = this.turn) {
         let result = "black";
 
-        if (this.turn) {
+        if (turn) {
             result = "white";
         }
 
@@ -261,12 +261,13 @@ class Ai extends Chess {
     constructor() {
         super();
 
-        this.kingVal   = 900;
-        this.queenVal  = 90;
-        this.rookVal   = 50; 
-        this.bishopVal = 30;
-        this.knightVal = 30;
-        this.pawnVal   = 10;
+        this.kingVal    = 900;
+        this.queenVal   = 90;
+        this.rookVal    = 50; 
+        this.bishopVal  = 30;
+        this.knightVal  = 30;
+        this.pawnVal    = 10;
+        this.bestMoves  = {};
     }
 
     /**
@@ -276,15 +277,37 @@ class Ai extends Chess {
      * @param {*} pieces 
      * @returns 
      */
-    getMove(turn, pieces) {
-        let validPieces = this.getValidPieces(turn, pieces);
-        let availableMoves = {};
+    getMove(turn, steps, pieces) {
+        this.bestMoves = {};
+        this.getMoveRecursive(turn, steps, pieces);
+        
+        let min = Math.min(...Object.values(this.bestMoves));
+        let preferredMoves = {};
+
+        for (const move in this.bestMoves) {
+            if (this.bestMoves[move] === min) {
+                preferredMoves[move] = this.bestMoves[move];
+            }
+        }
+
+        const preferredMoveKeys = Object.keys(preferredMoves);
+        const randomIndex       = Math.floor(Math.random() * preferredMoveKeys.length);
+        const selectedMove      = preferredMoveKeys[randomIndex].split(',').reverse();
+        
+        // console.log([this.getPieceIndex(selectedMove[3], selectedMove[2], pieces), selectedMove[1], selectedMove[0]]);
+        // return [this.getPieceIndex(selectedMove[0], selectedMove[1], pieces), selectedMove[2], selectedMove[3]];
+    }
+
+    getMoveRecursive(turn, steps, pieces, previousMove = '') {
+        let validPieces = this.getValidPieces(this.getTurn(turn), pieces);
+        let whiteMoves  = [];
+        let bestMove    = 0;
 
         if (validPieces.length > 0) {
             for (let b = 0; b < validPieces.length; b++) {
-                const oldRow     = validPieces[b].row;
-                const oldSquare  = validPieces[b].square;
-                const validMoves = Object.keys(validPieces[b].validMoves('black', pieces));
+                let oldRow       = validPieces[b].row;
+                let oldSquare    = validPieces[b].square;
+                let validMoves   = Object.keys(validPieces[b].validMoves(this.getTurn(turn), pieces));
 
                 for (let v = 0; v < validMoves.length; v++) {
                     let validMove = validMoves[v].split(",");
@@ -296,8 +319,33 @@ class Ai extends Chess {
                     validPieces[b].row    = newRow;
                     validPieces[b].square = newSquare;
 
-                    // Get value of updated board, save to availableMoves
-                    availableMoves[oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare] = this.getBoardValue(pieces);
+                    if (newRow === 1 && newSquare === 1 && turn) {
+                        // console.log(pieces);
+                        console.log(validPieces[b].row);
+                        console.log(pieces);
+                    }
+
+                    // Get value of updated board
+                    let moveKey    = oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare + (previousMove.length > 0 ? (',' + previousMove) : '');
+                    let boardValue = this.getBoardValue(pieces);
+
+                    if (steps > 0) {
+                        if (!turn) {
+                            this.getMoveRecursive(!turn, steps - 1, pieces, moveKey);
+                        }
+                    } else {
+                        this.bestMoves[moveKey] = boardValue;
+                    }
+
+                    if (turn) {
+                        if (boardValue > bestMove) {
+                            bestMove = boardValue;
+                            whiteMoves = [];
+                            whiteMoves.push(moveKey);
+                        } else if (boardValue === bestMove) {
+                            whiteMoves.push(moveKey);
+                        }
+                    }
 
                     // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
                     validPieces[b].row    = oldRow;
@@ -308,23 +356,39 @@ class Ai extends Chess {
                     }
                 }
             }
-
-            let min = Math.min(...Object.values(availableMoves));
-            let preferredMoves = {};
-
-            for (const move in availableMoves) {
-                if (availableMoves[move] === min) {
-                    preferredMoves[move] = availableMoves[move];
-                }
-            }
-
-            const preferredMoveKeys = Object.keys(preferredMoves);
-            const randomIndex       = Math.floor(Math.random() * preferredMoveKeys.length);
-            const selectedMove      = preferredMoveKeys[randomIndex].split(',');
-            
-            return [this.getPieceIndex(selectedMove[0], selectedMove[1], pieces), selectedMove[2], selectedMove[3]];
         } else {
             return false;
+        }
+
+        // If it's white's turn, play the best possible move white could make and continue the recursion from there.
+        // We already have an array of the best possible moves white could make for a given move
+        if (turn) {
+            // console.log(whiteMoves);
+            console.log(bestMove);
+            for (let w = 0; w < whiteMoves.length; w++) {
+                let split     = whiteMoves[w].split(',');
+                let oldRow    = parseInt(split[0]);
+                let oldSquare = parseInt(split[1]);
+                let newRow    = parseInt(split[2]);
+                let newSquare = parseInt(split[3]);
+
+                let pieceIndex = this.getPieceIndex(oldRow, oldSquare, pieces);
+
+                // Move piece temporarily
+                let captured = this.capturePiece(newRow, newSquare, pieces);
+                pieces[pieceIndex].row    = newRow;
+                pieces[pieceIndex].square = newSquare;
+
+                this.getMoveRecursive(!turn, steps - 1, pieces, whiteMoves[w]);
+
+                // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                pieces[pieceIndex].row    = oldRow;
+                pieces[pieceIndex].square = oldSquare;
+                if (captured) {
+                    pieces[captured].row    = newRow;
+                    pieces[captured].square = newSquare;
+                }
+            }
         }
     }
 
@@ -1314,7 +1378,7 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                 // Have AI make its move for black
                 if (chess.singlePlayer && chess.getTurn() === "black") {
-                    let aiMove = ai.getMove('black', chess.pieces);
+                    let aiMove = ai.getMove(false, 2, chess.pieces);
 
                     if (aiMove) {
                         // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
