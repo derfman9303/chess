@@ -337,7 +337,7 @@ class Ai extends Chess {
 
         let min = Infinity;
 
-        let validPieces = this.getValidPieces(this.getTurn(true), pieces);
+        let validPieces = this.getValidPieces(this.getTurn(false), pieces);
 
         if (validPieces.length > 0) {
             for (let b = 0; b < validPieces.length; b++) {
@@ -384,13 +384,13 @@ class Ai extends Chess {
 
         let max = -Infinity;
 
-        let validPieces = this.getValidPieces(this.getTurn(false), pieces);
+        let validPieces = this.getValidPieces(this.getTurn(true), pieces);
 
         if (validPieces.length > 0) {
             for (let b = 0; b < validPieces.length; b++) {
                 const oldRow     = validPieces[b].row;
                 const oldSquare  = validPieces[b].square;
-                const validMoves = Object.keys(validPieces[b].validMoves('black', pieces));
+                const validMoves = Object.keys(validPieces[b].validMoves('white', pieces));
 
                 for (let v = 0; v < validMoves.length; v++) {
                     let validMove = validMoves[v].split(",");
