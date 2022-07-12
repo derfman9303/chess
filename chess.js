@@ -337,7 +337,7 @@ class Ai extends Chess {
 
         let min = Infinity;
 
-        let validPieces = this.getValidPieces(this.getTurn(false), pieces);
+        let validPieces = this.getValidPieces('black', pieces);
 
         if (validPieces.length > 0) {
             for (let b = 0; b < validPieces.length; b++) {
@@ -384,7 +384,7 @@ class Ai extends Chess {
 
         let max = -Infinity;
 
-        let validPieces = this.getValidPieces(this.getTurn(true), pieces);
+        let validPieces = this.getValidPieces('white', pieces);
 
         if (validPieces.length > 0) {
             for (let b = 0; b < validPieces.length; b++) {
@@ -455,7 +455,7 @@ class Ai extends Chess {
     }
 
     /**
-     * Sets a piece to captured if it exists on the x/y coords, and returns true if it did capture a piece. False otherwise
+     * Sets a piece to captured if it exists on the x/y coords, and returns the piece's index in the pieces array if it did capture a piece. False otherwise
      * @param {*} row 
      * @param {*} square 
      * @param {*} pieces 
