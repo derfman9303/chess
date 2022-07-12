@@ -221,10 +221,10 @@ class Chess {
         this.turn = !this.turn;
     }
 
-    getTurn() {
+    getTurn(turn = this.turn) {
         let result = "black";
 
-        if (this.turn) {
+        if (turn) {
             result = "white";
         }
 
@@ -276,8 +276,8 @@ class Ai extends Chess {
      * @param {*} pieces 
      * @returns 
      */
-    getMove(turn, pieces) {
-        let validPieces = this.getValidPieces(turn, pieces);
+    getMove(turn, steps, pieces) {
+        let validPieces = this.getValidPieces(this.getTurn(turn), pieces);
         let availableMoves = {};
 
         if (validPieces.length > 0) {
@@ -297,7 +297,7 @@ class Ai extends Chess {
                     validPieces[b].square = newSquare;
 
                     // Get value of updated board, save to availableMoves
-                    availableMoves[oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare] = this.getBoardValue(pieces);
+                    availableMoves[oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare] = this.mini(steps, pieces);
 
                     // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
                     validPieces[b].row    = oldRow;
@@ -308,6 +308,8 @@ class Ai extends Chess {
                     }
                 }
             }
+
+            console.log(availableMoves);
 
             let min = Math.min(...Object.values(availableMoves));
             let preferredMoves = {};
@@ -323,6 +325,100 @@ class Ai extends Chess {
             const selectedMove      = preferredMoveKeys[randomIndex].split(',');
             
             return [this.getPieceIndex(selectedMove[0], selectedMove[1], pieces), selectedMove[2], selectedMove[3]];
+        } else {
+            return false;
+        }
+    }
+
+    mini(steps, pieces) {
+        if (steps === 0) {
+            return this.getBoardValue(pieces);
+        }
+
+        let min = Infinity;
+
+        let validPieces = this.getValidPieces(this.getTurn(true), pieces);
+
+        if (validPieces.length > 0) {
+            for (let b = 0; b < validPieces.length; b++) {
+                const oldRow     = validPieces[b].row;
+                const oldSquare  = validPieces[b].square;
+                const validMoves = Object.keys(validPieces[b].validMoves('black', pieces));
+
+                for (let v = 0; v < validMoves.length; v++) {
+                    let validMove = validMoves[v].split(",");
+                    let newRow    = parseInt(validMove[0]);
+                    let newSquare = parseInt(validMove[1]);
+
+                    // Move piece temporarily
+                    let captured = this.capturePiece(newRow, newSquare, pieces);
+                    validPieces[b].row    = newRow;
+                    validPieces[b].square = newSquare;
+
+                    // Get value of updated board, save to availableMoves
+                    let score = this.maxi(steps - 1, pieces);
+
+                    if (score < min) {
+                        min = score;
+                    }
+
+                    // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                    validPieces[b].row    = oldRow;
+                    validPieces[b].square = oldSquare;
+                    if (captured) {
+                        pieces[captured].row    = newRow;
+                        pieces[captured].square = newSquare;
+                    }
+                }
+            }
+            return min;
+        } else {
+            return false;
+        }
+    }
+
+    maxi(steps, pieces) {
+        if (steps === 0) {
+            return this.getBoardValue(pieces);
+        }
+
+        let max = -Infinity;
+
+        let validPieces = this.getValidPieces(this.getTurn(false), pieces);
+
+        if (validPieces.length > 0) {
+            for (let b = 0; b < validPieces.length; b++) {
+                const oldRow     = validPieces[b].row;
+                const oldSquare  = validPieces[b].square;
+                const validMoves = Object.keys(validPieces[b].validMoves('black', pieces));
+
+                for (let v = 0; v < validMoves.length; v++) {
+                    let validMove = validMoves[v].split(",");
+                    let newRow    = parseInt(validMove[0]);
+                    let newSquare = parseInt(validMove[1]);
+
+                    // Move piece temporarily
+                    let captured = this.capturePiece(newRow, newSquare, pieces);
+                    validPieces[b].row    = newRow;
+                    validPieces[b].square = newSquare;
+
+                    // Get value of updated board, save to availableMoves
+                    let score = this.mini(steps - 1, pieces);
+
+                    if (score > max) {
+                        max = score;
+                    }
+
+                    // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                    validPieces[b].row    = oldRow;
+                    validPieces[b].square = oldSquare;
+                    if (captured) {
+                        pieces[captured].row    = newRow;
+                        pieces[captured].square = newSquare;
+                    }
+                }
+            }
+            return max;
         } else {
             return false;
         }
@@ -1314,7 +1410,7 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                 // Have AI make its move for black
                 if (chess.singlePlayer && chess.getTurn() === "black") {
-                    let aiMove = ai.getMove('black', chess.pieces);
+                    let aiMove = ai.getMove(false, 3, chess.pieces);
 
                     if (aiMove) {
                         // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
