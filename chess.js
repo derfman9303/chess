@@ -1,10 +1,8 @@
 class Chess {
     constructor() {
-        this.pieces        = [];
         this.turn          = true;
-        this.selectedPiece = null;
         this.squares       = document.getElementsByClassName('square');
-        this.singlePlayer  = true; 
+        this.selectedPiece = false;
         this.grid          = [
             [
                 this.squares[0],
@@ -87,66 +85,103 @@ class Chess {
                 this.squares[63],
             ],
         ];
+        this.board = [
+            ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+            ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+            ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+            ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+            ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+            ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+            ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+            ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+        ];
+        this.pieces = [
+            // this.newPiece('king', 'white', 7, 4),
+            // this.newPiece('king', 'black', 0, 4),
+            this.newPiece('queen', 'white', 7, 3),
+            this.newPiece('queen', 'black', 0, 3),
+            // new Rook(this.grid, 7, 0, "white", this.turn, this.pieces),
+            // new Rook(this.grid, 7, 7, "white", this.turn, this.pieces),
+            // new Rook(this.grid, 0, 0, "black", this.turn, this.pieces),
+            // new Rook(this.grid, 0, 7, "black", this.turn, this.pieces),
+            // new Knight(this.grid, 7, 1, "white", this.turn, this.pieces),
+            // new Knight(this.grid, 7, 6, "white", this.turn, this.pieces),
+            // new Knight(this.grid, 0, 1, "black", this.turn, this.pieces),
+            // new Knight(this.grid, 0, 6, "black", this.turn, this.pieces),
+            // new Bishop(this.grid, 7, 2, "white", this.turn, this.pieces),
+            // new Bishop(this.grid, 7, 5, "white", this.turn, this.pieces),
+            // new Bishop(this.grid, 0, 2, "black", this.turn, this.pieces),
+            // new Bishop(this.grid, 0, 5, "black", this.turn, this.pieces),
+            // new Pawn(this.grid, 6, 0, "white", this.turn, this.pieces),
+            // new Pawn(this.grid, 6, 1, "white", this.turn, this.pieces),
+            // new Pawn(this.grid, 6, 2, "white", this.turn, this.pieces),
+            // new Pawn(this.grid, 6, 3, "white", this.turn, this.pieces),
+            // new Pawn(this.grid, 6, 4, "white", this.turn, this.pieces),
+            // new Pawn(this.grid, 6, 5, "white", this.turn, this.pieces),
+            // new Pawn(this.grid, 6, 6, "white", this.turn, this.pieces),
+            // new Pawn(this.grid, 6, 7, "white", this.turn, this.pieces),
+            // new Pawn(this.grid, 1, 0, "black", this.turn, this.pieces),
+            // new Pawn(this.grid, 1, 1, "black", this.turn, this.pieces),
+            // new Pawn(this.grid, 1, 2, "black", this.turn, this.pieces),
+            // new Pawn(this.grid, 1, 3, "black", this.turn, this.pieces),
+            // new Pawn(this.grid, 1, 4, "black", this.turn, this.pieces),
+            // new Pawn(this.grid, 1, 5, "black", this.turn, this.pieces),
+            // new Pawn(this.grid, 1, 6, "black", this.turn, this.pieces),
+            // new Pawn(this.grid, 1, 7, "black", this.turn, this.pieces),
+        ];
     }
 
     initializeBoard() {
         this.paintBoard();
-
-        this.pieces = [
-            new King(this.grid, 7, 4, "white", this.turn, this.pieces),
-            new King(this.grid, 0, 4, "black", this.turn, this.pieces),
-            new Queen(this.grid, 7, 3, "white", this.turn, this.pieces),
-            new Queen(this.grid, 0, 3, "black", this.turn, this.pieces),
-            new Rook(this.grid, 7, 0, "white", this.turn, this.pieces),
-            new Rook(this.grid, 7, 7, "white", this.turn, this.pieces),
-            new Rook(this.grid, 0, 0, "black", this.turn, this.pieces),
-            new Rook(this.grid, 0, 7, "black", this.turn, this.pieces),
-            new Knight(this.grid, 7, 1, "white", this.turn, this.pieces),
-            new Knight(this.grid, 7, 6, "white", this.turn, this.pieces),
-            new Knight(this.grid, 0, 1, "black", this.turn, this.pieces),
-            new Knight(this.grid, 0, 6, "black", this.turn, this.pieces),
-            new Bishop(this.grid, 7, 2, "white", this.turn, this.pieces),
-            new Bishop(this.grid, 7, 5, "white", this.turn, this.pieces),
-            new Bishop(this.grid, 0, 2, "black", this.turn, this.pieces),
-            new Bishop(this.grid, 0, 5, "black", this.turn, this.pieces),
-            new Pawn(this.grid, 6, 0, "white", this.turn, this.pieces),
-            new Pawn(this.grid, 6, 1, "white", this.turn, this.pieces),
-            new Pawn(this.grid, 6, 2, "white", this.turn, this.pieces),
-            new Pawn(this.grid, 6, 3, "white", this.turn, this.pieces),
-            new Pawn(this.grid, 6, 4, "white", this.turn, this.pieces),
-            new Pawn(this.grid, 6, 5, "white", this.turn, this.pieces),
-            new Pawn(this.grid, 6, 6, "white", this.turn, this.pieces),
-            new Pawn(this.grid, 6, 7, "white", this.turn, this.pieces),
-            new Pawn(this.grid, 1, 0, "black", this.turn, this.pieces),
-            new Pawn(this.grid, 1, 1, "black", this.turn, this.pieces),
-            new Pawn(this.grid, 1, 2, "black", this.turn, this.pieces),
-            new Pawn(this.grid, 1, 3, "black", this.turn, this.pieces),
-            new Pawn(this.grid, 1, 4, "black", this.turn, this.pieces),
-            new Pawn(this.grid, 1, 5, "black", this.turn, this.pieces),
-            new Pawn(this.grid, 1, 6, "black", this.turn, this.pieces),
-            new Pawn(this.grid, 1, 7, "black", this.turn, this.pieces),
-        ];
+        this.loadBoard();
+        this.reloadGrid();
     }
 
-    getValidMoves(r, s) {
-        for (let p = 0; p < this.pieces.length; p++) {
-            // Only pay attention to pieces still on the board with this variable
-            const captured = (this.pieces[p].row < 0 || this.pieces[p].square < 0);
+    /**
+     * Takes the piece's initial positions, and adds them to the board array
+     * @param {*} board 
+     * @param {*} pieces 
+     * @returns 
+     */
+    loadBoard(board = this.board, pieces = this.pieces) {
+        for (let p = 0; p < pieces.length; p++) {
+            board[pieces[p].row][pieces[p].square] = p;
+        }
 
-            if (!captured && this.grid[this.pieces[p].row][this.pieces[p].square] === this.grid[r][s]) {
-                let validMoves = this.pieces[p].validMoves(this.getTurn(), this.pieces);
+        return board;
+    }
 
-                if (validMoves) {
-                    Object.keys(validMoves).forEach(key => {
-                        let r = key.split(',')[0];
-                        let s = key.split(',')[1];
-
-                        this.grid[r][s].classList.add(validMoves[key]);
-                    });
+    /**
+     * Takes the board, and updates the DOM board (this.grid) that the user sees
+     * @param {*} board 
+     * @param {*} pieces 
+     */
+    reloadGrid(board = this.board, pieces = this.pieces) {
+        for (let r = 0; r < board.length; r++) {
+            for (let s = 0; s < board[r].length; s++) {
+                if (board[r][s] !== 'empty') {
+                    this.grid[r][s].innerHTML = this.getIcon(pieces[board[r][s]].type, pieces[board[r][s]].color);
+                    this.grid[r][s].setAttribute("data-value", pieces[board[r][s]].color);
                 }
-
-                this.selectedPiece = p;
             }
+        }
+    }
+
+    newPiece(type, color, row, square) {
+        return {
+            type: type,
+            color: color,
+            row: row,
+            square: square,
+            moved: false,
+            captured: false,
+        };
+    }
+
+    getValidMoves(board, row, square) {
+        return {
+            '3,3': 'highlighted',
+            '4,6': 'capture',
         }
     }
 
@@ -159,6 +194,17 @@ class Chess {
                     this.grid[r][s].classList.add("light");  
                 }
             }
+        }
+    }
+
+    selectPiece(row, square) {
+        let index = this.board[row][square];
+
+        if (index !== 'empty') {
+            this.selectedPiece = index;
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -217,10 +263,6 @@ class Chess {
         return result;
     }
 
-    switchTurns() {
-        this.turn = !this.turn;
-    }
-
     getTurn(turn = this.turn) {
         let result = "black";
 
@@ -235,1198 +277,46 @@ class Chess {
         return this.pieces[this.selectedPiece];
     }
 
-    // This function needs to be refactored. Probably isn't needed
-    captureHighlighting(r, s, row, square, turn) {
-        // Ignore the square the selected piece is currently on
-        if (!(r == row && s == square)) {
-            // If the piece belongs to the other player
-            if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                this.grid[r][s].classList.add("capture");
-            }
-        }
-    }
-
-    initializePiece(row, square, icon = this.icon) {
-        this.grid[row][square].innerHTML = icon;
-        this.grid[row][square].setAttribute("data-value", this.color);
-    }
-
-    vacateSquare(row, square) {
-        this.grid[row][square].innerHTML = "";
-        this.grid[row][square].setAttribute("data-value", "");
-    }
-}
-
-class Ai extends Chess {
-    constructor() {
-        super();
-
-        this.kingVal   = 900;
-        this.queenVal  = 90;
-        this.rookVal   = 50; 
-        this.bishopVal = 30;
-        this.knightVal = 30;
-        this.pawnVal   = 10;
-    }
-
-    /**
-     * Main function of the AI. Will return the coords of the desired piece to be moved in a string format. Example: '{piece index},{row},{square}'.
-     * Needs to be split by the comma, and converted into integers once received.
-     * piece index refers to the pieces index in the pieces array, row and square are the desired new coords
-     * @param {*} pieces 
-     * @returns 
-     */
-    getMove(turn, steps, pieces) {
-        let validPieces = this.getValidPieces(this.getTurn(turn), pieces);
-        let availableMoves = {};
-
-        if (validPieces.length > 0) {
-            for (let b = 0; b < validPieces.length; b++) {
-                const oldRow     = validPieces[b].row;
-                const oldSquare  = validPieces[b].square;
-                const validMoves = Object.keys(validPieces[b].validMoves('black', pieces));
-
-                for (let v = 0; v < validMoves.length; v++) {
-                    let validMove = validMoves[v].split(",");
-                    let newRow    = parseInt(validMove[0]);
-                    let newSquare = parseInt(validMove[1]);
-
-                    // Move piece temporarily
-                    let captured = this.capturePiece(newRow, newSquare, pieces);
-                    validPieces[b].row    = newRow;
-                    validPieces[b].square = newSquare;
-
-                    // Get value of updated board, save to availableMoves
-                    availableMoves[oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare] = this.mini(steps, pieces);
-
-                    // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
-                    validPieces[b].row    = oldRow;
-                    validPieces[b].square = oldSquare;
-                    if (captured) {
-                        pieces[captured].row    = newRow;
-                        pieces[captured].square = newSquare;
-                    }
-                }
-            }
-
-            console.log(availableMoves);
-
-            let min = Math.min(...Object.values(availableMoves));
-            let preferredMoves = {};
-
-            for (const move in availableMoves) {
-                if (availableMoves[move] === min) {
-                    preferredMoves[move] = availableMoves[move];
-                }
-            }
-
-            const preferredMoveKeys = Object.keys(preferredMoves);
-            const randomIndex       = Math.floor(Math.random() * preferredMoveKeys.length);
-            const selectedMove      = preferredMoveKeys[randomIndex].split(',');
-            
-            return [this.getPieceIndex(selectedMove[0], selectedMove[1], pieces), selectedMove[2], selectedMove[3]];
-        } else {
-            return false;
-        }
-    }
-
-    mini(steps, pieces) {
-        if (steps === 0) {
-            return this.getBoardValue(pieces);
-        }
-
-        let min = Infinity;
-
-        let validPieces = this.getValidPieces('black', pieces);
-
-        if (validPieces.length > 0) {
-            for (let b = 0; b < validPieces.length; b++) {
-                const oldRow     = validPieces[b].row;
-                const oldSquare  = validPieces[b].square;
-                const validMoves = Object.keys(validPieces[b].validMoves('black', pieces));
-
-                for (let v = 0; v < validMoves.length; v++) {
-                    let validMove = validMoves[v].split(",");
-                    let newRow    = parseInt(validMove[0]);
-                    let newSquare = parseInt(validMove[1]);
-
-                    // Move piece temporarily
-                    let captured = this.capturePiece(newRow, newSquare, pieces);
-                    validPieces[b].row    = newRow;
-                    validPieces[b].square = newSquare;
-
-                    // Get value of updated board, save to availableMoves
-                    let score = this.maxi(steps - 1, pieces);
-
-                    if (score < min) {
-                        min = score;
-                    }
-
-                    // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
-                    validPieces[b].row    = oldRow;
-                    validPieces[b].square = oldSquare;
-                    if (captured) {
-                        pieces[captured].row    = newRow;
-                        pieces[captured].square = newSquare;
-                    }
-                }
-            }
-            return min;
-        } else {
-            return false;
-        }
-    }
-
-    maxi(steps, pieces) {
-        if (steps === 0) {
-            return this.getBoardValue(pieces);
-        }
-
-        let max = -Infinity;
-
-        let validPieces = this.getValidPieces('white', pieces);
-
-        if (validPieces.length > 0) {
-            for (let b = 0; b < validPieces.length; b++) {
-                const oldRow     = validPieces[b].row;
-                const oldSquare  = validPieces[b].square;
-                const validMoves = Object.keys(validPieces[b].validMoves('white', pieces));
-
-                for (let v = 0; v < validMoves.length; v++) {
-                    let validMove = validMoves[v].split(",");
-                    let newRow    = parseInt(validMove[0]);
-                    let newSquare = parseInt(validMove[1]);
-
-                    // Move piece temporarily
-                    let captured = this.capturePiece(newRow, newSquare, pieces);
-                    validPieces[b].row    = newRow;
-                    validPieces[b].square = newSquare;
-
-                    // Get value of updated board, save to availableMoves
-                    let score = this.mini(steps - 1, pieces);
-
-                    if (score > max) {
-                        max = score;
-                    }
-
-                    // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
-                    validPieces[b].row    = oldRow;
-                    validPieces[b].square = oldSquare;
-                    if (captured) {
-                        pieces[captured].row    = newRow;
-                        pieces[captured].square = newSquare;
-                    }
-                }
-            }
-            return max;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Returns an array containing the pieces belonging to a given color, that are currently able to make a valid move
-     * @param {*} color 
-     * @param {*} pieces 
-     * @returns 
-     */
-    getValidPieces(color, pieces) {
-        let result = [];
-
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].color === color && pieces[p].row >= 0 && pieces[p].square >= 0 && Object.keys(pieces[p].validMoves(color, pieces)).length > 0) {
-                result.push(pieces[p]);
-            }
-        }
-
-        return result;
-    }
-
-    getPieceIndex(row, square, pieces) {
-        let result = null;
-
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row == row && pieces[p].square == square) {
-                result = p;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Sets a piece to captured if it exists on the x/y coords, and returns the piece's index in the pieces array if it did capture a piece. False otherwise
-     * @param {*} row 
-     * @param {*} square 
-     * @param {*} pieces 
-     * @returns 
-     */
-    capturePiece(row, square, pieces) {
-        let result = false;
-
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row === row && pieces[p].square === square && pieces[p].color === "white") {
-                pieces[p].row = -1;
-                pieces[p].square = -1;
-
-                result = p;
-
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Adds up the total value of all pieces on the board
-     * @param {*} pieces 
-     * @returns 
-     */
-    getBoardValue(pieces) {
-        let result = 0;
-
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row >= 0 && pieces[p].square >= 0) {
-                switch (pieces[p].type) {
-                    case "king":
-                        result += pieces[p].color === "white" ? this.kingVal : -Math.abs(this.kingVal);
-                        break;
-                    case "queen":
-                        result += pieces[p].color === "white" ? this.queenVal : -Math.abs(this.queenVal);
-                        break;
-                    case "rook":
-                        result += pieces[p].color === "white" ? this.rookVal : -Math.abs(this.rookVal);
-                        break;
-                    case "bishop":
-                        result += pieces[p].color === "white" ? this.bishopVal : -Math.abs(this.bishopVal);
-                        break;
-                    case "knight":
-                        result += pieces[p].color === "white" ? this.knightVal : -Math.abs(this.knightVal);
-                        break;
-                    case "pawn":
-                        result += pieces[p].color === "white" ? this.pawnVal : -Math.abs(this.pawnVal);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        return result;
-    }
-}
-
-class King extends Chess {
-    constructor(grid, row, square, color, turn, pieces) {
-        super(grid, turn, pieces);
-        this.row    = row;
-        this.square = square;
-        this.color  = color;
-        this.moved  = false;
-        this.type   = 'king';
-        this.icon   = this.getIcon(this.type, color);
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    move(row, square, pieces) {
-        this.vacateSquare(this.row, this.square);
-
-        // If there is already a piece on the square (capture)
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row === row && pieces[p].square === square) {
-                pieces[p].row = -1;
-                pieces[p].square = -1;
-            }
-        }
-
-        // Update piece position
-        this.row = row;
-        this.square = square;
-
-        this.initializePiece(this.row, this.square);
-        this.moved = true;
-    }
-
-    castle(row, square, pieces) {
-        this.vacateSquare(this.row, this.square);
-
-        // Move the rook
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row === row && pieces[p].square === square) {
-                this.vacateSquare(pieces[p].row, pieces[p].square);
-                if (square === 7) {
-                    pieces[p].square -= 2;
-                } else if (square === 0) {
-                    pieces[p].square += 2;
-                }
-                this.initializePiece(pieces[p].row, pieces[p].square, pieces[p].icon);
-                pieces[p].moved = true;
-            }
-        }
-
-        // Move the king
-        if (square === 7) {
-            this.square += 2;
-        } else if (square === 0) {
-            this.square -= 3;
-        }
-
-        this.initializePiece(this.row, this.square);
-        this.moved = true;
-    }
-
-    validMoves(turn, pieces) {
-        let validMoves = {};
-        // up
-        let r = this.row - 1;
-        let s = this.square;
-        if (r >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // down
-        r = this.row + 1;
-        s = this.square;
-        if (r < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // left
-        r = this.row;
-        s = this.square - 1;
-        if (s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // right
-        r = this.row;
-        s = this.square + 1;
-        if (s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-        
-        // up/left diagonal
-        r = this.row - 1;
-        s = this.square - 1;
-        if (r >= 0 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // up/right diagonal
-        r = this.row - 1;
-        s = this.square + 1;
-        if (r >= 0 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // down/left diagonal
-        r = this.row + 1;
-        s = this.square - 1;
-        if (r < 8 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // down/right diagonal
-        r = this.row + 1;
-        s = this.square + 1;
-        if (r < 8 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        if (!this.moved) {
-            r = this.row;
-            s = this.square;
-            // left castle
-            if (this.grid[r][s - 1].getAttribute("data-value") == "" && this.grid[r][s - 2].getAttribute("data-value") == "" && this.grid[r][s - 3].getAttribute("data-value") == "" && this.grid[r][s - 4].getAttribute("data-value") === turn) {
-                for (let p = 0; p < pieces.length; p++) {
-                    if (pieces[p].row === r && pieces[p].square === s - 4 && pieces[p].type === 'rook' && !pieces[p].moved) {
-                        this.grid[r][s - 4].classList.add("castle");
-                    }
-                }    
-            }
-    
-            // right castle
-            if (this.grid[r][s + 1].getAttribute("data-value") == "" && this.grid[r][s + 2].getAttribute("data-value") == "" && this.grid[r][s + 3].getAttribute("data-value") === turn) {
-                for (let p = 0; p < pieces.length; p++) {
-                    if (pieces[p].row === r && pieces[p].square === s + 3 && pieces[p].type === 'rook' && !pieces[p].moved) {
-                        this.grid[r][s + 3].classList.add("castle");
-                    }
-                }
-            }
-        }
-
-        return validMoves;
-    }
-}
-
-class Queen extends Chess {
-    constructor(grid, row, square, color, turn, pieces) {
-        super(grid, turn, pieces);
-        this.row    = row;
-        this.square = square;
-        this.color  = color;
-        this.type   = 'queen';
-        this.icon   = this.getIcon(this.type, color);
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    move(row, square, pieces) {
-        this.vacateSquare(this.row, this.square);
-
-        // If there is already a piece on the square (capture)
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row == row && pieces[p].square == square) {
-                pieces[p].row = -1;
-                pieces[p].square = -1;
-            }
-        }
-
-        // Update piece position
-        this.row = row;
-        this.square = square;
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    validMoves(turn) {
-        let validMoves = {};
-
-        // up
-        let r = this.row;
-        let s = this.square;
-        while (r >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r--;
-        }
-
-        // down
-        r = this.row;
-        s = this.square;
-        while (r < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r++;
-        }
-
-        // left
-        r = this.row;
-        s = this.square;
-        while (s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            s--;
-        }
-
-        // right
-        r = this.row;
-        s = this.square;
-        while (s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            s++;
-        }
-        
-        // up/left diagonal
-        r = this.row;
-        s = this.square;
-        while (r >= 0 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r--;
-            s--;
-        }
-
-        // up/right diagonal
-        r = this.row;
-        s = this.square;
-        while (r >= 0 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r--;
-            s++;
-        }
-
-        // down/left diagonal
-        r = this.row;
-        s = this.square;
-        while (r < 8 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r++;
-            s--;
-        }
-
-        // down/right diagonal
-        r = this.row;
-        s = this.square;
-        while (r < 8 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r++;
-            s++;
-        }
-
-        return validMoves;
-    }
-}
-
-class Rook extends Chess {
-    constructor(grid, row, square, color, turn, pieces) {
-        super(grid, turn, pieces);
-        this.row    = row;
-        this.square = square;
-        this.color  = color;
-        this.moved  = false;
-        this.type   = 'rook';
-        this.icon   = this.getIcon(this.type, color);
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    move(row, square, pieces) {
-        this.vacateSquare(this.row, this.square);
-
-        // If there is already a piece on the square (capture)
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row === row && pieces[p].square === square) {
-                pieces[p].row = -1;
-                pieces[p].square = -1;
-            }
-        }
-
-        // Update piece position
-        this.row = row;
-        this.square = square;
-
-        this.initializePiece(this.row, this.square);
-        this.moved = true;
-    }
-
-    validMoves(turn) {
-        let validMoves = {};
-
-        // up
-        let r = this.row;
-        let s = this.square;
-        while (r >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r--;
-        }
-
-        // down
-        r = this.row;
-        s = this.square;
-        while (r < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r++;
-        }
-
-        // left
-        r = this.row;
-        s = this.square;
-        while (s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            s--;
-        }
-
-        // right
-        r = this.row;
-        s = this.square;
-        while (s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            s++;
-        }
-
-        return validMoves;
-    }
-}
-
-class Knight extends Chess {
-    constructor(grid, row, square, color, turn, pieces) {
-        super(grid, turn, pieces);
-        this.row    = row;
-        this.square = square;
-        this.color  = color;
-        this.type   = 'knight';
-        this.icon   = this.getIcon(this.type, color);
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    move(row, square, pieces) {
-        this.vacateSquare(this.row, this.square);
-
-        // If there is already a piece on the square (capture)
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row === row && pieces[p].square === square) {
-                pieces[p].row = -1;
-                pieces[p].square = -1;
-            }
-        }
-
-        // Update piece position
-        this.row = row;
-        this.square = square;
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    validMoves(turn) {
-        let validMoves = {};
-
-        // up 1
-        let r = this.row - 2;
-        let s = this.square - 1;
-        if (r >= 0 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // up 2
-        r = this.row - 2;
-        s = this.square + 1;
-        if (r >= 0 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // down 1
-        r = this.row + 2;
-        s = this.square - 1;
-        if (r < 8 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // down 2
-        r = this.row + 2;
-        s = this.square + 1;
-        if (r < 8 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // left 1
-        r = this.row + 1;
-        s = this.square - 2;
-        if (r < 8 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // left 2
-        r = this.row - 1;
-        s = this.square - 2;
-        if (r >= 0 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // right 1
-        r = this.row - 1;
-        s = this.square + 2;
-        if (r >= 0 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        // right 2
-        r = this.row + 1;
-        s = this.square + 2;
-        if (r < 8 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-            }
-        }
-
-        return validMoves;
-    }
-}
-
-class Bishop extends Chess {
-    constructor(grid, row, square, color, turn, pieces) {
-        super(grid, turn, pieces);
-        this.row    = row;
-        this.square = square;
-        this.color  = color;
-        this.type   = 'bishop';
-        this.icon   = this.getIcon(this.type, color);
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    move(row, square, pieces) {
-        this.vacateSquare(this.row, this.square);
-
-        // If there is already a piece on the square (capture)
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row === row && pieces[p].square === square) {
-                pieces[p].row = -1;
-                pieces[p].square = -1;
-            }
-        }
-
-        // Update piece position
-        this.row = row;
-        this.square = square;
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    validMoves(turn) {
-        let validMoves = {};
-
-        // up/left diagonal
-        let r = this.row;
-        let s = this.square;
-        while (r >= 0 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r--;
-            s--;
-        }
-
-        // up/right diagonal
-        r = this.row;
-        s = this.square;
-        while (r >= 0 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r--;
-            s++;
-        }
-
-        // down/left diagonal
-        r = this.row;
-        s = this.square;
-        while (r < 8 && s >= 0) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r++;
-            s--;
-        }
-
-        // down/right diagonal
-        r = this.row;
-        s = this.square;
-        while (r < 8 && s < 8) {
-            if (this.grid[r][s].getAttribute("data-value") == "") {
-                validMoves[r + ',' + s] = 'highlighted';
-            } else if (this.grid[r][s].getAttribute("data-value") !== turn) {
-                validMoves[r + ',' + s] = 'capture';
-                break;
-            } else if (this.grid[r][s].getAttribute("data-value") === turn && (r !== this.row || s !== this.square)) {
-                break;
-            }
-            r++;
-            s++;
-        }
-
-        return validMoves;
-    }
-}
-
-class Pawn extends Chess {
-    constructor(grid, row, square, color, turn, pieces) {
-        super(grid, turn, pieces);
-        this.row    = row;
-        this.square = square;
-        this.color  = color;
-        this.moved  = false;
-        this.type   = 'pawn';
-        this.icon   = this.getIcon(this.type, color);
-
-        this.initializePiece(this.row, this.square);
-    }
-
-    move(row, square, pieces) {
-        this.vacateSquare(this.row, this.square);
-
-        // If there is already a piece on the square (capture)
-        for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].row === row && pieces[p].square === square) {
-                pieces[p].row = -1;
-                pieces[p].square = -1;
-            }
-        }
-
-        // Pawn made it across the board. Open modal to select new piece
-        if ((row === 0 && this.color === "white") || (row === 7 && this.color === "black")) {
-            this.selectNewPiece(pieces);
-        }
-
-        // Update piece position
-        this.row = row;
-        this.square = square;
-
-        this.initializePiece(this.row, this.square);
-        this.moved = true;
-    }
-
-    selectNewPiece(pieces) {
-        this.openModal();
-
-        let queen  = document.getElementById("queen");
-        let rook   = document.getElementById("rook");
-        let knight = document.getElementById("knight");
-        let bishop = document.getElementById("bishop");
-
-        queen.innerHTML  = this.getIcon("queen", this.color);
-        rook.innerHTML   = this.getIcon("rook", this.color);
-        knight.innerHTML = this.getIcon("knight", this.color);
-        bishop.innerHTML = this.getIcon("bishop", this.color);
-
-        let ogThis = this;
-
-        queen.addEventListener("click", function() {
-            ogThis.newPiece(pieces, ogThis.color, "queen");
+    removeHighlighting() {
+        // Remove highlighting from all squares
+        let highlighted = document.querySelectorAll(".highlighted");
+        let capture     = document.querySelectorAll(".capture");
+        let castle      = document.querySelectorAll(".castle");
+
+        [].forEach.call(highlighted, function(s) {
+            s.classList.remove("highlighted");
         });
-
-        rook.addEventListener("click", function() {
-            ogThis.newPiece(pieces, ogThis.color, "rook");
+        [].forEach.call(capture, function(s) {
+            s.classList.remove("capture");
         });
-
-        knight.addEventListener("click", function() {
-            ogThis.newPiece(pieces, ogThis.color, "knight");
-        });
-
-        bishop.addEventListener("click", function() {
-            ogThis.newPiece(pieces, ogThis.color, "bishop");
+        [].forEach.call(castle, function(s) {
+            s.classList.remove("castle");
         });
     }
-
-    newPiece(pieces, color, type) {
-        this.addNewPiece(pieces, color, type);
-        this.removePiece();
-        this.closeModal();
-        this.switchTurns();
-    }
-
-    openModal() {
-        document.getElementById("overlay").classList.remove("hidden");
-        document.getElementById("modal").classList.remove("hidden");
-    }
-
-    closeModal() {
-        document.getElementById("overlay").classList.add("hidden");
-        document.getElementById("modal").classList.add("hidden");
-    }
-
-    removePiece() {
-        this.row = -2;
-        this.square = -2;
-    }
-
-    addNewPiece(pieces, turn, type) {
-        switch (type) {
-            case 'queen':
-                pieces.push(new Queen(this.grid, this.row, this.square, turn, turn, pieces));
-                break;
-            case 'rook':
-                pieces.push(new Rook(this.grid, this.row, this.square, turn, turn, pieces));
-                break;
-            case 'knight':
-                pieces.push(new Knight(this.grid, this.row, this.square, turn, turn, pieces));
-                break;
-            case 'bishop':
-                pieces.push(new Bishop(this.grid, this.row, this.square, turn, turn, pieces));
-                break;
-        }
-    }
-
-    validMoves(turn) {
-        let validMoves = {};
-
-        if (turn === "white") {
-            // forward 1
-            let r = this.row - 1;
-            let s = this.square;
-            if (r >= 0) {
-                if (this.grid[r][s].getAttribute("data-value") == "") {
-                    validMoves[r + ',' + s] = 'highlighted';
-                }
-            }
-
-            if (!this.moved) {
-                // forward 2
-                r = this.row - 2;
-                s = this.square;
-                if (r >= 0) {
-                    if (this.grid[r][s].getAttribute("data-value") == "") {
-                        validMoves[r + ',' + s] = 'highlighted';
-                    }
-                }
-            }
-
-            // capture left
-            r = this.row - 1;
-            s = this.square - 1;
-            if (r >= 0 && s >= 0) {
-                if (this.grid[r][s].getAttribute("data-value") === "black") {
-                    validMoves[r + ',' + s] = 'capture';
-                }
-            }
-
-            // capture right
-            r = this.row - 1;
-            s = this.square + 1;
-            if (r >= 0 && s < 8) {
-                if (this.grid[r][s].getAttribute("data-value") === "black") {
-                    validMoves[r + ',' + s] = 'capture';
-                }
-            }
-        } else {
-            // forward 1
-            let r = this.row + 1;
-            let s = this.square;
-            if (r < 8) {
-                if (this.grid[r][s].getAttribute("data-value") == "") {
-                    validMoves[r + ',' + s] = 'highlighted';
-                }
-            }
-
-            if (!this.moved) {
-                // forward 2
-                r = this.row + 2;
-                s = this.square;
-                if (r < 8) {
-                    if (this.grid[r][s].getAttribute("data-value") == "") {
-                        validMoves[r + ',' + s] = 'highlighted';
-                    }
-                }
-            }
-
-            // capture left
-            r = this.row + 1;
-            s = this.square - 1;
-            if (r < 8 && s >= 0) {
-                if (this.grid[r][s].getAttribute("data-value") === "white") {
-                    validMoves[r + ',' + s] = 'capture';
-                }
-            }
-
-            // capture right
-            r = this.row + 1;
-            s = this.square + 1;
-            if (r < 8 && s < 8) {
-                if (this.grid[r][s].getAttribute("data-value") === "white") {
-                    validMoves[r + ',' + s] = 'capture';
-                }
-            }
-        }
-
-        return validMoves;
-    }
 }
-
 
 let chess = new Chess();
-let ai    = new Ai(chess.pieces);
 
 chess.initializeBoard();
-
 
 for (let r = 0; r < chess.grid.length; r++) {
     for (let s = 0; s < chess.grid[r].length; s++) {
         chess.grid[r][s].addEventListener("click", function() {
-            if (chess.selectedPiece !== null) {
-                if (chess.grid[r][s].classList.contains("highlighted") || chess.grid[r][s].classList.contains("capture")) {
-                    chess.getSelectedPiece().move(r, s, chess.pieces);
-                    chess.switchTurns();
-                } else if (chess.grid[r][s].classList.contains("castle")) {
-                    chess.getSelectedPiece().castle(r, s, chess.pieces);
-                    chess.switchTurns();
-                }
 
-                chess.selectedPiece = null;
+            if (chess.selectedPiece !== false) {
+                chess.selectedPiece = false;
 
-                // Remove highlighting from all squares
-                let highlighted = document.querySelectorAll(".highlighted");
-                let capture     = document.querySelectorAll(".capture");
-                let castle      = document.querySelectorAll(".castle");
+                chess.removeHighlighting();
+            } else if (chess.selectPiece(r, s)) {
+                let validMoves = chess.getValidMoves(chess.board, r, s);
 
-                [].forEach.call(highlighted, function(s) {
-                    s.classList.remove("highlighted");
-                });
-                [].forEach.call(capture, function(s) {
-                    s.classList.remove("capture");
-                });
-                [].forEach.call(castle, function(s) {
-                    s.classList.remove("castle");
-                });
+                if (validMoves) {
+                    Object.keys(validMoves).forEach(key => {
+                        let vr = key.split(',')[0];
+                        let vs = key.split(',')[1];
 
-                // Have AI make its move for black
-                if (chess.singlePlayer && chess.getTurn() === "black") {
-                    let aiMove = ai.getMove(false, 3, chess.pieces);
-
-                    if (aiMove) {
-                        // Ai move comes back as a string, with the index of the piece, followed by the row and square coords separated by commas
-                        const aiPiece  = parseInt(aiMove[0]);
-                        const aiRow    = parseInt(aiMove[1]);
-                        const aiSquare = parseInt(aiMove[2]);
-
-                        setTimeout(function() {
-                            chess.pieces[aiPiece].move(aiRow, aiSquare, chess.pieces);
-                            chess.switchTurns();
-                        }, 1000);
-                    }
-                }
-            } else {
-                if (chess.grid[r][s].getAttribute("data-value") === chess.getTurn()) {
-                    chess.getValidMoves(r, s);
+                        chess.grid[vr][vs].classList.add(validMoves[key]);
+                    });
                 }
             }
         });
