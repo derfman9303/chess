@@ -192,6 +192,9 @@ class Chess {
             case 'rook':
                 result = this.rookValidMoves(board, piece, pieces, row, square);
                 break;
+            case 'bishop':
+                result = this.bishopValidMoves(board, piece, pieces, row, square);
+                break;
             case 'pawn':
                 result = this.pawnValidMoves(board, piece, pieces, row, square);
                 break;
@@ -389,6 +392,75 @@ class Chess {
                 break;
             }
             s++;
+        }
+
+        return result;
+    }
+
+    bishopValidMoves(board, piece, pieces, row, square) {
+        let result = {};
+        // up/right diagonal
+        let r = row;
+        let s = square;
+        while (r >= 0 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r--;
+            s++;
+        }
+
+        // up/left diagonal
+        r = row;
+        s = square;
+        while (r >= 0 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r--;
+            s--;
+        }
+
+        // down/right diagonal
+        r = row;
+        s = square;
+        while (r < 8 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r++;
+            s++;
+        }
+
+        // down/left diagonal
+        r = row;
+        s = square;
+        while (r < 8 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r++;
+            s--;
         }
 
         return result;
