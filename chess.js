@@ -588,58 +588,58 @@ class Chess {
             }
 
             // capture left
-            r = this.row - 1;
-            s = this.square - 1;
+            r = row - 1;
+            s = square - 1;
             if (r >= 0 && s >= 0) {
-                if (this.grid[r][s].getAttribute("data-value") === "black") {
-                    validMoves[r + ',' + s] = 'capture';
+                if (this.board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color === 'black') {
+                    result[r + ',' + s] = 'capture';
                 }
             }
 
             // capture right
-            r = this.row - 1;
-            s = this.square + 1;
+            r = row - 1;
+            s = square + 1;
             if (r >= 0 && s < 8) {
-                if (this.grid[r][s].getAttribute("data-value") === "black") {
-                    validMoves[r + ',' + s] = 'capture';
+                if (this.board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color === 'black') {
+                    result[r + ',' + s] = 'capture';
                 }
             }
         } else {
             // forward 1
-            let r = this.row + 1;
-            let s = this.square;
+            let r = row + 1;
+            let s = square;
             if (r < 8) {
-                if (this.grid[r][s].getAttribute("data-value") == "") {
-                    validMoves[r + ',' + s] = 'highlighted';
+                if (board[r][s] === "empty") {
+                    result[r + ',' + s] = 'highlighted';
                 }
             }
 
-            if (!this.moved) {
+            if (!piece.moved) {
                 // forward 2
-                r = this.row + 2;
-                s = this.square;
+                r = row + 2;
+                s = square;
                 if (r < 8) {
-                    if (this.grid[r][s].getAttribute("data-value") == "") {
-                        validMoves[r + ',' + s] = 'highlighted';
+                    if (board[r][s] === "empty") {
+                        result[r + ',' + s] = 'highlighted';
                     }
                 }
             }
 
             // capture left
-            r = this.row + 1;
-            s = this.square - 1;
+            r = row + 1;
+            s = square - 1;
             if (r < 8 && s >= 0) {
-                if (this.grid[r][s].getAttribute("data-value") === "white") {
-                    validMoves[r + ',' + s] = 'capture';
+                if (this.board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color === 'white') {
+                    result[r + ',' + s] = 'capture';
                 }
             }
 
             // capture right
-            r = this.row + 1;
-            s = this.square + 1;
+            r = row + 1;
+            s = square + 1;
             if (r < 8 && s < 8) {
-                if (this.grid[r][s].getAttribute("data-value") === "white") {
-                    validMoves[r + ',' + s] = 'capture';
+                if (this.board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color === 'white') {
+                    result[r + ',' + s] = 'capture';
                 }
             }
         }
