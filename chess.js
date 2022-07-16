@@ -456,7 +456,15 @@ class Chess {
         });
     }
 
-    movePiece(row, square, piece = this.pieces[this.selectedPiece], index = this.selectedPiece, board = this.board) {
+    movePiece(row, square, piece = this.pieces[this.selectedPiece], pieces = this.pieces, index = this.selectedPiece, board = this.board) {
+        // Check if capture
+        if (board[row][square] !== 'empty') {
+            let capturedPiece = this.getPiece(board, pieces, row, square);
+            capturedPiece.captured = true;
+            capturedPiece.row      = -1;
+            capturedPiece.square   = -1;
+        }
+
         // Move piece on board
         board[row][square] = this.selectedPiece;
         board[piece.row][piece.square] = 'empty';
