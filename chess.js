@@ -96,38 +96,38 @@ class Chess {
             ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
         ];
         this.pieces = [
-            // this.newPiece('king', 'white', 7, 4),
-            // this.newPiece('king', 'black', 0, 4),
+            this.newPiece('king', 'white', 7, 4),
+            this.newPiece('king', 'black', 0, 4),
             this.newPiece('queen', 'white', 7, 3),
             this.newPiece('queen', 'black', 0, 3),
-            // new Rook(this.grid, 7, 0, "white", this.turn, this.pieces),
-            // new Rook(this.grid, 7, 7, "white", this.turn, this.pieces),
-            // new Rook(this.grid, 0, 0, "black", this.turn, this.pieces),
-            // new Rook(this.grid, 0, 7, "black", this.turn, this.pieces),
-            // new Knight(this.grid, 7, 1, "white", this.turn, this.pieces),
-            // new Knight(this.grid, 7, 6, "white", this.turn, this.pieces),
-            // new Knight(this.grid, 0, 1, "black", this.turn, this.pieces),
-            // new Knight(this.grid, 0, 6, "black", this.turn, this.pieces),
-            // new Bishop(this.grid, 7, 2, "white", this.turn, this.pieces),
-            // new Bishop(this.grid, 7, 5, "white", this.turn, this.pieces),
-            // new Bishop(this.grid, 0, 2, "black", this.turn, this.pieces),
-            // new Bishop(this.grid, 0, 5, "black", this.turn, this.pieces),
-            // new Pawn(this.grid, 6, 0, "white", this.turn, this.pieces),
-            // new Pawn(this.grid, 6, 1, "white", this.turn, this.pieces),
-            // new Pawn(this.grid, 6, 2, "white", this.turn, this.pieces),
-            // new Pawn(this.grid, 6, 3, "white", this.turn, this.pieces),
-            // new Pawn(this.grid, 6, 4, "white", this.turn, this.pieces),
-            // new Pawn(this.grid, 6, 5, "white", this.turn, this.pieces),
-            // new Pawn(this.grid, 6, 6, "white", this.turn, this.pieces),
-            // new Pawn(this.grid, 6, 7, "white", this.turn, this.pieces),
-            // new Pawn(this.grid, 1, 0, "black", this.turn, this.pieces),
-            // new Pawn(this.grid, 1, 1, "black", this.turn, this.pieces),
-            // new Pawn(this.grid, 1, 2, "black", this.turn, this.pieces),
-            // new Pawn(this.grid, 1, 3, "black", this.turn, this.pieces),
-            // new Pawn(this.grid, 1, 4, "black", this.turn, this.pieces),
-            // new Pawn(this.grid, 1, 5, "black", this.turn, this.pieces),
-            // new Pawn(this.grid, 1, 6, "black", this.turn, this.pieces),
-            // new Pawn(this.grid, 1, 7, "black", this.turn, this.pieces),
+            this.newPiece('rook', 'white', 7, 0),
+            this.newPiece('rook', 'white', 7, 7),
+            this.newPiece('rook', 'black', 0, 0),
+            this.newPiece('rook', 'black', 0, 7),
+            this.newPiece('knight', 'white', 7, 1),
+            this.newPiece('knight', 'white', 7, 6),
+            this.newPiece('knight', 'black', 0, 1),
+            this.newPiece('knight', 'black', 0, 6),
+            this.newPiece('bishop', 'white', 7, 2),
+            this.newPiece('bishop', 'white', 7, 5),
+            this.newPiece('bishop', 'black', 0, 2),
+            this.newPiece('bishop', 'black', 0, 5),
+            this.newPiece('pawn', 'white', 6, 0),
+            this.newPiece('pawn', 'white', 6, 1),
+            this.newPiece('pawn', 'white', 6, 2),
+            this.newPiece('pawn', 'white', 6, 3),
+            this.newPiece('pawn', 'white', 6, 4),
+            this.newPiece('pawn', 'white', 6, 5),
+            this.newPiece('pawn', 'white', 6, 6),
+            this.newPiece('pawn', 'white', 6, 7),
+            this.newPiece('pawn', 'black', 1, 0),
+            this.newPiece('pawn', 'black', 1, 1),
+            this.newPiece('pawn', 'black', 1, 2),
+            this.newPiece('pawn', 'black', 1, 3),
+            this.newPiece('pawn', 'black', 1, 4),
+            this.newPiece('pawn', 'black', 1, 5),
+            this.newPiece('pawn', 'black', 1, 6),
+            this.newPiece('pawn', 'black', 1, 7),
         ];
     }
 
@@ -205,7 +205,7 @@ class Chess {
             } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
                 result[r + ',' + s] = 'capture';
                 break;
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
                 break;
             }
             r--;
@@ -220,7 +220,7 @@ class Chess {
             } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
                 result[r + ',' + s] = 'capture';
                 break;
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
                 break;
             }
             r++;
@@ -235,7 +235,7 @@ class Chess {
             } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
                 result[r + ',' + s] = 'capture';
                 break;
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
                 break;
             }
             s--;
@@ -250,7 +250,7 @@ class Chess {
             } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
                 result[r + ',' + s] = 'capture';
                 break;
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
                 break;
             }
             s++;
@@ -265,7 +265,7 @@ class Chess {
             } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
                 result[r + ',' + s] = 'capture';
                 break;
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
                 break;
             }
             r--;
@@ -281,7 +281,7 @@ class Chess {
             } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
                 result[r + ',' + s] = 'capture';
                 break;
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
                 break;
             }
             r--;
@@ -297,7 +297,7 @@ class Chess {
             } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
                 result[r + ',' + s] = 'capture';
                 break;
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
                 break;
             }
             r++;
@@ -313,7 +313,7 @@ class Chess {
             } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
                 result[r + ',' + s] = 'capture';
                 break;
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
                 break;
             }
             r++;
