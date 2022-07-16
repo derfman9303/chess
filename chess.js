@@ -162,6 +162,9 @@ class Chess {
                 if (board[r][s] !== 'empty') {
                     this.grid[r][s].innerHTML = this.getIcon(pieces[board[r][s]].type, pieces[board[r][s]].color);
                     this.grid[r][s].setAttribute("data-value", pieces[board[r][s]].color);
+                } else {
+                    this.grid[r][s].innerHTML = "";
+                    this.grid[r][s].setAttribute("data-value", "");
                 }
             }
         }
@@ -273,6 +276,10 @@ class Chess {
         return result;
     }
 
+    switchTurns() {
+        this.turn = !this.turn;
+    }
+
     getSelectedPiece() {
         return this.pieces[this.selectedPiece];
     }
@@ -293,6 +300,16 @@ class Chess {
             s.classList.remove("castle");
         });
     }
+
+    movePiece(row, square, piece = this.pieces[this.selectedPiece], index = this.selectedPiece, board = this.board) {
+        // Move piece on board
+        board[row][square] = this.selectedPiece;
+        board[piece.row][piece.square] = 'empty';
+
+        // Update piece's coords
+        piece.row    = row;
+        piece.square = square;
+    }
 }
 
 let chess = new Chess();
@@ -304,6 +321,15 @@ for (let r = 0; r < chess.grid.length; r++) {
         chess.grid[r][s].addEventListener("click", function() {
 
             if (chess.selectedPiece !== false) {
+                if (chess.grid[r][s].classList.contains("highlighted") || chess.grid[r][s].classList.contains("capture")) {
+                    chess.movePiece(r, s);
+                    chess.reloadGrid();
+                    chess.switchTurns();
+                } else if (chess.grid[r][s].classList.contains("castle")) {
+
+                    chess.switchTurns();
+                }
+
                 chess.selectedPiece = false;
 
                 chess.removeHighlighting();
