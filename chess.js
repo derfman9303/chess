@@ -189,6 +189,9 @@ class Chess {
             case 'queen':
                 result = this.queenValidMoves(board, piece, pieces, row, square);
                 break;
+            case 'pawn':
+                result = this.pawnValidMoves(board, piece, pieces, row, square);
+                break;
         }
 
         return result;
@@ -318,6 +321,90 @@ class Chess {
             }
             r++;
             s--;
+        }
+
+        return result;
+    }
+
+    pawnValidMoves(board, piece, pieces, row, square) {
+        let result = {};
+
+        if (piece.color === "white") {
+            // forward 1
+            let r = row - 1;
+            let s = square;
+            if (r >= 0) {
+                if (board[r][s] === "empty") {
+                    result[r + ',' + s] = 'highlighted';
+                }
+            }
+
+            if (!piece.moved) {
+                // forward 2
+                r = row - 2;
+                s = square;
+                if (r >= 0) {
+                    if (board[r][s] === "empty") {
+                        result[r + ',' + s] = 'highlighted';
+                    }
+                }
+            }
+
+            // capture left
+            r = this.row - 1;
+            s = this.square - 1;
+            if (r >= 0 && s >= 0) {
+                if (this.grid[r][s].getAttribute("data-value") === "black") {
+                    validMoves[r + ',' + s] = 'capture';
+                }
+            }
+
+            // capture right
+            r = this.row - 1;
+            s = this.square + 1;
+            if (r >= 0 && s < 8) {
+                if (this.grid[r][s].getAttribute("data-value") === "black") {
+                    validMoves[r + ',' + s] = 'capture';
+                }
+            }
+        } else {
+            // forward 1
+            let r = this.row + 1;
+            let s = this.square;
+            if (r < 8) {
+                if (this.grid[r][s].getAttribute("data-value") == "") {
+                    validMoves[r + ',' + s] = 'highlighted';
+                }
+            }
+
+            if (!this.moved) {
+                // forward 2
+                r = this.row + 2;
+                s = this.square;
+                if (r < 8) {
+                    if (this.grid[r][s].getAttribute("data-value") == "") {
+                        validMoves[r + ',' + s] = 'highlighted';
+                    }
+                }
+            }
+
+            // capture left
+            r = this.row + 1;
+            s = this.square - 1;
+            if (r < 8 && s >= 0) {
+                if (this.grid[r][s].getAttribute("data-value") === "white") {
+                    validMoves[r + ',' + s] = 'capture';
+                }
+            }
+
+            // capture right
+            r = this.row + 1;
+            s = this.square + 1;
+            if (r < 8 && s < 8) {
+                if (this.grid[r][s].getAttribute("data-value") === "white") {
+                    validMoves[r + ',' + s] = 'capture';
+                }
+            }
         }
 
         return result;
@@ -472,6 +559,7 @@ class Chess {
         // Update piece's coords
         piece.row    = row;
         piece.square = square;
+        piece.moved = true;
     }
 }
 
