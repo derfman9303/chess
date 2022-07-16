@@ -181,13 +181,163 @@ class Chess {
         };
     }
 
-    getValidMoves(board, row, square) {
-        return {
-            '3,3': 'highlighted',
-            '4,6': 'capture',
+    getValidMoves(board, pieces, row, square) {
+        let result;
+        let piece = this.getPiece(board, pieces, row, square);
+
+        switch (piece.type) {
+            case 'queen':
+                result = this.queenValidMoves(board, piece, pieces, row, square);
+                break;
         }
+
+        return result;
     }
 
+    queenValidMoves(board, piece, pieces, row, square) {
+        let result = {};
+        // up
+        let r = row;
+        let s = square;
+        while (r >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r--;
+        }
+
+        // down
+        r = row;
+        s = square;
+        while (r < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r++;
+        }
+
+        // left
+        r = row;
+        s = square;
+        while (s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            s--;
+        }
+
+        // right
+        r = row;
+        s = square;
+        while (s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            s++;
+        }
+
+        // up/right diagonal
+        r = row;
+        s = square;
+        while (r >= 0 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r--;
+            s++;
+        }
+
+        // up/left diagonal
+        r = row;
+        s = square;
+        while (r >= 0 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r--;
+            s--;
+        }
+
+        // down/right diagonal
+        r = row;
+        s = square;
+        while (r < 8 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r++;
+            s++;
+        }
+
+        // down/left diagonal
+        r = row;
+        s = square;
+        while (r < 8 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r++;
+            s--;
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns the piece object, given its location on the board
+     * @param {*} board 
+     * @param {*} pieces 
+     * @param {*} row 
+     * @param {*} square 
+     * @returns 
+     */
+    getPiece(board, pieces, row, square) {
+        return pieces[board[row][square]];
+    }
+
+    /**
+     * Colors the board squares light/dark alternating
+     */
     paintBoard() {
         for (let r = 0; r < this.grid.length; r++) {
             for (let s = 0; s < this.grid[r].length; s++) {
@@ -266,6 +416,11 @@ class Chess {
         return result;
     }
 
+    /**
+     * Returns the turn color string, given the boolean turn value
+     * @param {*} turn 
+     * @returns 
+     */
     getTurn(turn = this.turn) {
         let result = "black";
 
@@ -334,7 +489,7 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                 chess.removeHighlighting();
             } else if (chess.selectPiece(r, s)) {
-                let validMoves = chess.getValidMoves(chess.board, r, s);
+                let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
 
                 if (validMoves) {
                     Object.keys(validMoves).forEach(key => {
