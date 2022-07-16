@@ -189,6 +189,9 @@ class Chess {
             case 'queen':
                 result = this.queenValidMoves(board, piece, pieces, row, square);
                 break;
+            case 'rook':
+                result = this.rookValidMoves(board, piece, pieces, row, square);
+                break;
             case 'pawn':
                 result = this.pawnValidMoves(board, piece, pieces, row, square);
                 break;
@@ -321,6 +324,71 @@ class Chess {
             }
             r++;
             s--;
+        }
+
+        return result;
+    }
+
+    rookValidMoves(board, piece, pieces, row, square) {
+        let result = {};
+        // up
+        let r = row;
+        let s = square;
+        while (r >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r--;
+        }
+
+        // down
+        r = row;
+        s = square;
+        while (r < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            r++;
+        }
+
+        // left
+        r = row;
+        s = square;
+        while (s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            s--;
+        }
+
+        // right
+        r = row;
+        s = square;
+        while (s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+                break;
+            } else if (this.getPiece(board, pieces, r, s).color === piece.color && (r !== row || s !== square)) {
+                break;
+            }
+            s++;
         }
 
         return result;
@@ -559,7 +627,7 @@ class Chess {
         // Update piece's coords
         piece.row    = row;
         piece.square = square;
-        piece.moved = true;
+        piece.moved  = true;
     }
 }
 
