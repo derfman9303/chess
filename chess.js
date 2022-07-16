@@ -195,6 +195,9 @@ class Chess {
             case 'bishop':
                 result = this.bishopValidMoves(board, piece, pieces, row, square);
                 break;
+            case 'knight':
+                result = this.knightValidMoves(board, piece, pieces, row, square);
+                break;
             case 'pawn':
                 result = this.pawnValidMoves(board, piece, pieces, row, square);
                 break;
@@ -461,6 +464,100 @@ class Chess {
             }
             r++;
             s--;
+        }
+
+        return result;
+    }
+
+    knightValidMoves(board, piece, pieces, row, square) {
+        let result = {};
+
+        // up 1
+        let r = row - 2;
+        let s = square - 1;
+        if (r >= 0 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // up 2
+        r = row - 2;
+        s = square + 1;
+        if (r >= 0 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // down 1
+        r = row + 2;
+        s = square - 1;
+        if (r < 8 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // down 2
+        r = row + 2;
+        s = square + 1;
+        if (r < 8 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // left 1
+        r = row + 1;
+        s = square - 2;
+        if (r < 8 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // left 2
+        r = row - 1;
+        s = square - 2;
+        if (r >= 0 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // right 1
+        r = row - 1;
+        s = square + 2;
+        if (r >= 0 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // right 2
+        r = row + 1;
+        s = square + 2;
+        if (r < 8 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
         }
 
         return result;
