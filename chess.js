@@ -186,6 +186,9 @@ class Chess {
         let piece = this.getPiece(board, pieces, row, square);
 
         switch (piece.type) {
+            case 'king':
+                result = this.kingValidMoves(board, piece, pieces, row, square);
+                break;
             case 'queen':
                 result = this.queenValidMoves(board, piece, pieces, row, square);
                 break;
@@ -205,6 +208,129 @@ class Chess {
 
         return result;
     }
+
+    kingValidMoves(board, piece, pieces, row, square) {
+        let result = {};
+        // up
+        let r = row - 1;
+        let s = square;
+        if (r >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // down
+        r = row + 1;
+        s = square;
+        if (r < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // left
+        r = row;
+        s = square - 1;
+        if (s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // right
+        r = row;
+        s = square + 1;
+        if (s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+        
+        // up/left diagonal
+        r = row - 1;
+        s = square - 1;
+        if (r >= 0 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // up/right diagonal
+        r = row - 1;
+        s = square + 1;
+        if (r >= 0 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // down/left diagonal
+        r = row + 1;
+        s = square - 1;
+        if (r < 8 && s >= 0) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        // down/right diagonal
+        r = row + 1;
+        s = square + 1;
+        if (r < 8 && s < 8) {
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
+            }
+        }
+
+        if (!piece.moved) {
+            r = row;
+            s = square;
+            // left castle
+            if (
+                board[r][s - 1] === "empty" &&
+                board[r][s - 2] === "empty" &&
+                board[r][s - 3] === "empty" &&
+                board[r][s - 4] !== "empty" &&
+                this.getPiece(board, pieces, r, s - 4).color === piece.color &&
+                this.getPiece(board, pieces, r, s - 4).type === 'rook' &&
+                this.getPiece(board, pieces, r, s - 4).moved === false
+            ) {
+                result[r + ',' + (s - 4)] = 'castle';
+            }
+    
+            // right castle
+            if (
+                board[r][s + 1] === "empty" &&
+                board[r][s + 2] === "empty" &&
+                board[r][s + 3] !== "empty" &&
+                this.getPiece(board, pieces, r, s + 3).color === piece.color &&
+                this.getPiece(board, pieces, r, s + 3).type === 'rook' &&
+                this.getPiece(board, pieces, r, s + 3).moved === false
+            ) {
+                result[r + ',' + (s + 3)] = 'castle';
+            }
+        }
+
+        return result;
+    }
+
 
     queenValidMoves(board, piece, pieces, row, square) {
         let result = {};
