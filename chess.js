@@ -962,7 +962,37 @@ class Chess {
     }
 }
 
+class Ai extends Chess {
+    constructor() {
+        super();
+
+        this.kingVal   = 900;
+        this.queenVal  = 90;
+        this.rookVal   = 50; 
+        this.bishopVal = 30;
+        this.knightVal = 30;
+        this.pawnVal   = 10;
+    }
+
+    getMove(board, pieces) {
+        let blackPieces = [];
+
+        for (let p = 0; p < pieces.length; p++) {
+            // If piece is black, not captured, and has at least 1 valid move
+            if (pieces[p].color === "black" && !pieces[p].captured && Object.keys(this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square)).length > 0) {
+                blackPieces.push(p);
+            }
+        }
+
+        const randomIndex = Math.floor(Math.random() * blackPieces.length);
+        const validMoves  = this.getValidMoves(board, pieces, pieces[blackPieces[randomIndex]].row, pieces[blackPieces[randomIndex]].square);
+
+        return (blackPieces[randomIndex] + "," + Object.keys(validMoves)[0]);
+    }
+}
+
 let chess = new Chess();
+let ai    = new Ai();
 
 for (let r = 0; r < chess.grid.length; r++) {
     for (let s = 0; s < chess.grid[r].length; s++) {
@@ -979,11 +1009,30 @@ for (let r = 0; r < chess.grid.length; r++) {
                 }
 
                 chess.selectedPiece = false;
-
                 chess.removeHighlighting();
+
+                // AI makes move
+                if (!chess.turn) {
+                    let move   = ai.getMove(chess.board, chess.pieces).split(',');
+                    let index  = parseInt(move[0]);
+                    let row    = parseInt(move[1]);
+                    let square = parseInt(move[2]);
+
+                    if (move !== false) {
+                        chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
+                        chess.switchTurns();
+
+                        // Wait 1 second before moving piece on the screen, to make it feel more natural
+                        setTimeout(function() {
+                            chess.reloadGrid();
+                        }, 1000);
+                    } else {
+                        // Checkmate by white?
+                    }
+                }
             } else if (chess.selectPiece(r, s)) {
                 
-                if (chess.getSelectedPiece().color === chess.getTurn()) {
+                if (chess.getSelectedPiece().color === 'white' && chess.getTurn() === 'white') {
                     let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
 
                     if (validMoves) {
