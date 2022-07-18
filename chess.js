@@ -801,7 +801,7 @@ class Chess {
                 r = row - 2;
                 s = square;
                 if (r >= 0) {
-                    if (board[r][s] === "empty") {
+                    if (board[r][s] === "empty" && board[row - 1][s] === 'empty') {
                         result[r + ',' + s] = 'highlighted';
                     }
                 }
@@ -839,7 +839,7 @@ class Chess {
                 r = row + 2;
                 s = square;
                 if (r < 8) {
-                    if (board[r][s] === "empty") {
+                    if (board[r][s] === "empty" && board[row + 1][s] === 'empty') {
                         result[r + ',' + s] = 'highlighted';
                     }
                 }
@@ -975,20 +975,58 @@ class Ai extends Chess {
     }
 
     getMove(board, pieces) {
-        let blackPieces = [];
+        let validPieces = [];
 
         for (let p = 0; p < pieces.length; p++) {
             // If piece is black, not captured, and has at least 1 valid move
             if (pieces[p].color === "black" && !pieces[p].captured && Object.keys(this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square)).length > 0) {
-                blackPieces.push(p);
+                validPieces.push(p);
             }
         }
 
-        const randomIndex = Math.floor(Math.random() * blackPieces.length);
-        const validMoves  = this.getValidMoves(board, pieces, pieces[blackPieces[randomIndex]].row, pieces[blackPieces[randomIndex]].square);
+        const randomIndex = Math.floor(Math.random() * validPieces.length);
+        const validMoves  = this.getValidMoves(board, pieces, pieces[validPieces[randomIndex]].row, pieces[validPieces[randomIndex]].square);
 
-        return (blackPieces[randomIndex] + "," + Object.keys(validMoves)[0]);
+        return (validPieces[randomIndex] + "," + Object.keys(validMoves)[0]);
     }
+
+    /**
+     * Adds up the total value of all pieces on the board
+     * @param {*} pieces 
+     * @returns 
+     */
+         getBoardValue(pieces) {
+            let result = 0;
+    
+            for (let p = 0; p < pieces.length; p++) {
+                if (!pieces[p].captured) {
+                    switch (pieces[p].type) {
+                        case "king":
+                            result += pieces[p].color === "white" ? this.kingVal : -Math.abs(this.kingVal);
+                            break;
+                        case "queen":
+                            result += pieces[p].color === "white" ? this.queenVal : -Math.abs(this.queenVal);
+                            break;
+                        case "rook":
+                            result += pieces[p].color === "white" ? this.rookVal : -Math.abs(this.rookVal);
+                            break;
+                        case "bishop":
+                            result += pieces[p].color === "white" ? this.bishopVal : -Math.abs(this.bishopVal);
+                            break;
+                        case "knight":
+                            result += pieces[p].color === "white" ? this.knightVal : -Math.abs(this.knightVal);
+                            break;
+                        case "pawn":
+                            result += pieces[p].color === "white" ? this.pawnVal : -Math.abs(this.pawnVal);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+    
+            return result;
+        }
 }
 
 let chess = new Chess();
@@ -1019,11 +1057,10 @@ for (let r = 0; r < chess.grid.length; r++) {
                     let square = parseInt(move[2]);
 
                     if (move !== false) {
-                        chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
-                        chess.switchTurns();
-
                         // Wait 1 second before moving piece on the screen, to make it feel more natural
                         setTimeout(function() {
+                            chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
+                            chess.switchTurns();
                             chess.reloadGrid();
                         }, 1000);
                     } else {
@@ -1035,13 +1072,15 @@ for (let r = 0; r < chess.grid.length; r++) {
                 if (chess.getSelectedPiece().color === 'white' && chess.getTurn() === 'white') {
                     let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
 
-                    if (validMoves) {
+                    if (Object.keys(validMoves).length > 0) {
                         Object.keys(validMoves).forEach(key => {
                             let vr = key.split(',')[0];
                             let vs = key.split(',')[1];
     
                             chess.grid[vr][vs].classList.add(validMoves[key]);
                         });
+                    } else {
+                        chess.selectedPiece = false;
                     }
                 }
             }
