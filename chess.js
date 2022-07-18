@@ -982,15 +982,18 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                 chess.removeHighlighting();
             } else if (chess.selectPiece(r, s)) {
-                let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
+                
+                if (chess.getSelectedPiece().color === chess.getTurn()) {
+                    let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
 
-                if (validMoves) {
-                    Object.keys(validMoves).forEach(key => {
-                        let vr = key.split(',')[0];
-                        let vs = key.split(',')[1];
-
-                        chess.grid[vr][vs].classList.add(validMoves[key]);
-                    });
+                    if (validMoves) {
+                        Object.keys(validMoves).forEach(key => {
+                            let vr = key.split(',')[0];
+                            let vs = key.split(',')[1];
+    
+                            chess.grid[vr][vs].classList.add(validMoves[key]);
+                        });
+                    }
                 }
             }
         });
