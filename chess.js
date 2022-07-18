@@ -975,19 +975,27 @@ class Ai extends Chess {
     }
 
     getMove(board, pieces) {
-        let validPieces = [];
+        let validPieces = this.getValidPieces(board, pieces);
 
-        for (let p = 0; p < pieces.length; p++) {
-            // If piece is black, not captured, and has at least 1 valid move
-            if (pieces[p].color === "black" && !pieces[p].captured && Object.keys(this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square)).length > 0) {
-                validPieces.push(p);
-            }
-        }
+
 
         const randomIndex = Math.floor(Math.random() * validPieces.length);
         const validMoves  = this.getValidMoves(board, pieces, pieces[validPieces[randomIndex]].row, pieces[validPieces[randomIndex]].square);
 
         return (validPieces[randomIndex] + "," + Object.keys(validMoves)[0]);
+    }
+
+    getValidPieces(board, pieces, turn = false) {
+        let result = [];
+
+        for (let p = 0; p < pieces.length; p++) {
+            // If piece is black, not captured, and has at least 1 valid move
+            if (pieces[p].color === this.getTurn(turn) && !pieces[p].captured && Object.keys(this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square)).length > 0) {
+                result.push(p);
+            }
+        }
+
+        return result;
     }
 
     /**
