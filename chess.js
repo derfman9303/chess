@@ -2,7 +2,7 @@ class Chess {
     constructor() {
         this.turn          = true;
         this.squares       = document.getElementsByClassName('square');
-        this.selectedPiece = false;
+        this.selectedPiece = null;
         this.grid          = [
             [
                 this.squares[0],
@@ -1036,7 +1036,7 @@ for (let r = 0; r < chess.grid.length; r++) {
     for (let s = 0; s < chess.grid[r].length; s++) {
         chess.grid[r][s].addEventListener("click", function() {
 
-            if (chess.selectedPiece !== false) {
+            if (chess.selectedPiece !== null) {
                 if (chess.grid[r][s].classList.contains("highlighted") || chess.grid[r][s].classList.contains("capture")) {
                     chess.movePiece(r, s);
                     chess.reloadGrid();
@@ -1046,15 +1046,15 @@ for (let r = 0; r < chess.grid.length; r++) {
                     chess.switchTurns();
                 }
 
-                chess.selectedPiece = false;
+                chess.selectedPiece = null;
                 chess.removeHighlighting();
 
                 // AI makes move
                 if (!chess.turn) {
-                    let move   = ai.getMove(chess.board, chess.pieces).split(',');
-                    let index  = parseInt(move[0]);
-                    let row    = parseInt(move[1]);
-                    let square = parseInt(move[2]);
+                    const move   = ai.getMove(chess.board, chess.pieces).split(',');
+                    const index  = parseInt(move[0]);
+                    const row    = parseInt(move[1]);
+                    const square = parseInt(move[2]);
 
                     if (move !== false) {
                         // Wait 1 second before moving piece on the screen, to make it feel more natural
@@ -1068,7 +1068,6 @@ for (let r = 0; r < chess.grid.length; r++) {
                     }
                 }
             } else if (chess.selectPiece(r, s)) {
-                
                 if (chess.getSelectedPiece().color === 'white' && chess.getTurn() === 'white') {
                     let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
 
@@ -1080,8 +1079,10 @@ for (let r = 0; r < chess.grid.length; r++) {
                             chess.grid[vr][vs].classList.add(validMoves[key]);
                         });
                     } else {
-                        chess.selectedPiece = false;
+                        chess.selectedPiece = null;
                     }
+                } else {
+                    chess.selectedPiece = null;
                 }
             }
         });
