@@ -129,6 +129,10 @@ class Chess {
             this.newPiece('pawn', 'black', 1, 6),
             this.newPiece('pawn', 'black', 1, 7),
         ];
+
+        this.paintBoard();
+        this.loadBoard();
+        this.reloadGrid();
     }
 
     getIcon(piece, color) {
@@ -184,12 +188,6 @@ class Chess {
         }
 
         return result;
-    }
-
-    initializeBoard() {
-        this.paintBoard();
-        this.loadBoard();
-        this.reloadGrid();
     }
 
     /**
@@ -965,8 +963,6 @@ class Chess {
 }
 
 let chess = new Chess();
-
-chess.initializeBoard();
 
 for (let r = 0; r < chess.grid.length; r++) {
     for (let s = 0; s < chess.grid[r].length; s++) {
