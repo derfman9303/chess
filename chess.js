@@ -811,7 +811,7 @@ class Chess {
             r = row - 1;
             s = square - 1;
             if (r >= 0 && s >= 0) {
-                if (this.board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color === 'black') {
+                if (board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color !== piece.color) {
                     result[r + ',' + s] = 'capture';
                 }
             }
@@ -820,7 +820,7 @@ class Chess {
             r = row - 1;
             s = square + 1;
             if (r >= 0 && s < 8) {
-                if (this.board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color === 'black') {
+                if (board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color !== piece.color) {
                     result[r + ',' + s] = 'capture';
                 }
             }
@@ -849,7 +849,7 @@ class Chess {
             r = row + 1;
             s = square - 1;
             if (r < 8 && s >= 0) {
-                if (this.board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color === 'white') {
+                if (board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color !== piece.color) {
                     result[r + ',' + s] = 'capture';
                 }
             }
@@ -858,7 +858,7 @@ class Chess {
             r = row + 1;
             s = square + 1;
             if (r < 8 && s < 8) {
-                if (this.board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color === 'white') {
+                if (board[r][s] !== 'empty' && this.getPiece(board, pieces, r, s).color !== piece.color) {
                     result[r + ',' + s] = 'capture';
                 }
             }
@@ -945,7 +945,7 @@ class Chess {
     movePiece(row, square, piece = this.pieces[this.selectedPiece], pieces = this.pieces, index = this.selectedPiece, board = this.board) {
         // Check if capture
         if (board[row][square] !== 'empty') {
-            let capturedPiece = this.getPiece(board, pieces, row, square);
+            let capturedPiece      = this.getPiece(board, pieces, row, square);
             capturedPiece.captured = true;
             capturedPiece.row      = -1;
             capturedPiece.square   = -1;
@@ -953,7 +953,9 @@ class Chess {
 
         // Move piece on board
         board[row][square] = index;
-        board[piece.row][piece.square] = 'empty';
+        if (piece.row >= 0 && piece.square >= 0) {
+            board[piece.row][piece.square] = 'empty';
+        }
 
         // Update piece's coords
         piece.row    = row;
@@ -974,25 +976,87 @@ class Ai extends Chess {
         this.pawnVal   = 10;
     }
 
-    getMove(board, pieces) {
+    getMove(board, pieces, turn) {
         let validPieces = this.getValidPieces(board, pieces);
+        let availableMoves = {};
 
+        if (validPieces.length > 0) {
+            for (let p = 0; p < validPieces.length; p++) {
+                let piece        = pieces[validPieces[p]];
+                const oldRow     = piece.row;
+                const oldSquare  = piece.square;
+                const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare);
+                const moveKeys   = Object.keys(validMoves);
 
+                for (let v = 0; v < moveKeys.length; v++) {
+                    const validMove = moveKeys[v].split(",");
+                    const newRow    = parseInt(validMove[0]);
+                    const newSquare = parseInt(validMove[1]);
 
-        const randomIndex = Math.floor(Math.random() * validPieces.length);
-        const validMoves  = this.getValidMoves(board, pieces, pieces[validPieces[randomIndex]].row, pieces[validPieces[randomIndex]].square);
+                    // Move piece temporarily
+                    let captured = this.capturePiece(newRow, newSquare, board, pieces, turn);
+                    this.movePiece(newRow, newSquare, piece, pieces, validPieces[p], board);
 
-        return (validPieces[randomIndex] + "," + Object.keys(validMoves)[0]);
+                    // Get value of updated board, save to availableMoves
+                    availableMoves[oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare] = this.getBoardValue(pieces);
+
+                    // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                    this.movePiece(oldRow, oldSquare, piece, pieces, validPieces[p], board);
+                    piece.moved    = false;
+                    piece.captured = false;
+                    if (captured !== false) {
+                        this.movePiece(newRow, newSquare, pieces[captured], pieces, captured, board);
+                        pieces[captured].moved    = false;
+                        pieces[captured].captured = false;
+                    }
+                }
+            }
+        } else {
+            return false;
+        }
+
+        let min = Math.min(...Object.values(availableMoves));
+        let preferredMoves = {};
+
+        for (const move in availableMoves) {
+            if (availableMoves[move] === min) {
+                preferredMoves[move] = availableMoves[move];
+            }
+        }
+
+        const preferredMoveKeys = Object.keys(preferredMoves);
+        const randomIndex       = Math.floor(Math.random() * preferredMoveKeys.length);
+        const selectedMove      = preferredMoveKeys[randomIndex].split(',');
+        
+        return [board[selectedMove[0]][selectedMove[1]], selectedMove[2], selectedMove[3]];
     }
 
     getValidPieces(board, pieces, turn = false) {
         let result = [];
 
         for (let p = 0; p < pieces.length; p++) {
-            // If piece is black, not captured, and has at least 1 valid move
-            if (pieces[p].color === this.getTurn(turn) && !pieces[p].captured && Object.keys(this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square)).length > 0) {
+            // If piece's color matches the turn, not captured, and has at least 1 valid move
+            if (
+                pieces[p].color === this.getTurn(turn) &&
+                !pieces[p].captured && Object.keys(this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square)).length > 0
+            ) {
                 result.push(p);
             }
+        }
+
+        return result;
+    }
+
+    capturePiece(row, square, board, pieces, turn) {
+        let result = false;
+
+        // If piece exists on row/square, and belongs to the opposite turn
+        if (board[row][square] !== 'empty' && this.getPiece(board, pieces, row, square).color !== this.getTurn(turn)) {
+            result = board[row][square];
+
+            this.getPiece(board, pieces, row, square).captured = true;
+            this.getPiece(board, pieces, row, square).row      = -1;
+            this.getPiece(board, pieces, row, square).square   = -1;
         }
 
         return result;
@@ -1003,38 +1067,38 @@ class Ai extends Chess {
      * @param {*} pieces 
      * @returns 
      */
-         getBoardValue(pieces) {
-            let result = 0;
-    
-            for (let p = 0; p < pieces.length; p++) {
-                if (!pieces[p].captured) {
-                    switch (pieces[p].type) {
-                        case "king":
-                            result += pieces[p].color === "white" ? this.kingVal : -Math.abs(this.kingVal);
-                            break;
-                        case "queen":
-                            result += pieces[p].color === "white" ? this.queenVal : -Math.abs(this.queenVal);
-                            break;
-                        case "rook":
-                            result += pieces[p].color === "white" ? this.rookVal : -Math.abs(this.rookVal);
-                            break;
-                        case "bishop":
-                            result += pieces[p].color === "white" ? this.bishopVal : -Math.abs(this.bishopVal);
-                            break;
-                        case "knight":
-                            result += pieces[p].color === "white" ? this.knightVal : -Math.abs(this.knightVal);
-                            break;
-                        case "pawn":
-                            result += pieces[p].color === "white" ? this.pawnVal : -Math.abs(this.pawnVal);
-                            break;
-                        default:
-                            break;
-                    }
+        getBoardValue(pieces) {
+        let result = 0;
+
+        for (let p = 0; p < pieces.length; p++) {
+            if (!pieces[p].captured) {
+                switch (pieces[p].type) {
+                    case "king":
+                        result += pieces[p].color === "white" ? this.kingVal : -Math.abs(this.kingVal);
+                        break;
+                    case "queen":
+                        result += pieces[p].color === "white" ? this.queenVal : -Math.abs(this.queenVal);
+                        break;
+                    case "rook":
+                        result += pieces[p].color === "white" ? this.rookVal : -Math.abs(this.rookVal);
+                        break;
+                    case "bishop":
+                        result += pieces[p].color === "white" ? this.bishopVal : -Math.abs(this.bishopVal);
+                        break;
+                    case "knight":
+                        result += pieces[p].color === "white" ? this.knightVal : -Math.abs(this.knightVal);
+                        break;
+                    case "pawn":
+                        result += pieces[p].color === "white" ? this.pawnVal : -Math.abs(this.pawnVal);
+                        break;
+                    default:
+                        break;
                 }
             }
-    
-            return result;
         }
+
+        return result;
+    }
 }
 
 let chess = new Chess();
@@ -1059,7 +1123,7 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                 // AI makes move
                 if (!chess.turn) {
-                    const move   = ai.getMove(chess.board, chess.pieces).split(',');
+                    const move   = ai.getMove(chess.board, chess.pieces, chess.turn);
                     const index  = parseInt(move[0]);
                     const row    = parseInt(move[1]);
                     const square = parseInt(move[2]);
