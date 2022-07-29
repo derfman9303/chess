@@ -107,11 +107,11 @@ class Chess {
             this.newPiece('knight', 'white', 7, 1),
             this.newPiece('knight', 'white', 7, 6),
             this.newPiece('knight', 'black', 0, 1),
-            // this.newPiece('knight', 'black', 0, 6),
+            this.newPiece('knight', 'black', 0, 6),
             this.newPiece('bishop', 'white', 7, 2),
             this.newPiece('bishop', 'white', 7, 5),
             this.newPiece('bishop', 'black', 0, 2),
-            // this.newPiece('bishop', 'black', 0, 5),
+            this.newPiece('bishop', 'black', 0, 5),
             this.newPiece('pawn', 'white', 6, 0),
             this.newPiece('pawn', 'white', 6, 1),
             this.newPiece('pawn', 'white', 6, 2),
@@ -249,7 +249,7 @@ class Chess {
         };
     }
 
-    castle(row, square, piece = this.selectedPiece, board = this.board, pieces = this.pieces) {
+    castle(row, square, piece = this.selectedPiece, board = this.board, pieces = this.pieces, recursive = false) {
 
         // Identify the rook to be castled
         const rookIndex = board[row][square];
@@ -272,10 +272,27 @@ class Chess {
             this.movePiece(row, square + 3, pieces[rookIndex], pieces, rookIndex, board);
         }
 
-        this.reloadGrid();
+        if (!recursive) {
+            this.reloadGrid();
+        }
     }
 
-    validLeftCastle(piece, pieces, board, r, s) {
+    validCastle(piece, pieces, board, r, s) {
+        let result = false;
+
+        if (r === 0 && s === 0) {
+            result = this.validLeftCastle(piece, pieces, board, r, s);
+        } else if (r === 0 && s === 7) {
+            result = this.validRightCastle(piece, pieces, board, r, s);
+        }
+
+        return result;
+    }
+
+    validLeftCastle(piece, pieces, board) {
+        let r = piece.row;
+        let s = piece.square;
+
         if (
             !piece.moved &&
             board[r][s - 1] === "empty" &&
@@ -292,9 +309,12 @@ class Chess {
         return false;
     }
 
-    validRightCastle(piece, pieces, board, r, s) {
+    validRightCastle(piece, pieces, board) {
+        let r = piece.row;
+        let s = piece.square;
+
         if (
-            !piece.moves &&
+            !piece.moved &&
             board[r][s + 1] === "empty" &&
             board[r][s + 2] === "empty" &&
             board[r][s + 3] !== "empty" &&
@@ -972,6 +992,7 @@ class Chess {
         // Move piece on board
         board[row][square] = index;
         if (piece.row >= 0 && piece.square >= 0) {
+            // Only vacate the square if the piece is currently on one
             board[piece.row][piece.square] = 'empty';
         }
 
@@ -1027,7 +1048,17 @@ class Ai extends Chess {
                         // If a piece was captured, un-capture it
                         this.unCapturePiece(captured, newData, board, pieces, moved);
                     } else {
-                        // TODO: Make AI able to castle
+                        let rook            = pieces[board[newData['row']][newData['square']]];
+                        const rookOldRow    = rook.row;
+                        const rookOldSquare = rook.square;
+
+                        // Castle temporarily
+                        this.castle(newData['row'], newData['square'], validPieces[p], board, pieces, true);
+
+                        availableMoves[oldRow + ',' + oldSquare + ',' + newData['row'] + ',' + newData['square']] = this.getBoardValue(pieces);
+
+                        // Un-castle
+                        this.unCastle(piece, rook, rookOldRow, rookOldSquare, oldRow, oldSquare, board, pieces);
                     }
                 }
             }
@@ -1049,6 +1080,18 @@ class Ai extends Chess {
         const selectedMove      = preferredMoveKeys[randomIndex].split(',');
         
         return [board[selectedMove[0]][selectedMove[1]], selectedMove[2], selectedMove[3]];
+    }
+
+    unCastle(king, rook, rookOldRow, rookOldSquare, kingOldRow, kingOldSquare, board, pieces) {
+        const rookIndex = board[rook.row][rook.square];
+        const kingIndex = board[king.row][king.square];
+
+        this.movePiece(rookOldRow, rookOldSquare, rook, pieces, rookIndex, board);
+        this.movePiece(kingOldRow, kingOldSquare, king, pieces, kingIndex, board);
+
+        rook.moved  = false;
+        king.moved  = false;
+
     }
 
     getNewData(moveKey) {
@@ -1168,12 +1211,17 @@ for (let r = 0; r < chess.grid.length; r++) {
                     if (move !== false) {
                         // Wait 1 second before moving piece on the screen, to make it feel more natural
                         setTimeout(function() {
-                            chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
+                            if (chess.validCastle(chess.pieces[chess.board[0][4]], chess.pieces, chess.board, row, square)) {
+                                chess.castle(row, square, chess.board[0][4], chess.board, chess.pieces);
+                            } else {
+                                chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
+                            }
+
                             chess.switchTurns();
                             chess.reloadGrid();
                         }, 1000);
                     } else {
-                        // Checkmate by white?
+                        // Checkmate by white? Stalemate?
                     }
                 }
             } else if (chess.selectPiece(r, s)) {
