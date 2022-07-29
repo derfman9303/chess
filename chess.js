@@ -992,21 +992,23 @@ class Ai extends Chess {
                 for (let v = 0; v < moveKeys.length; v++) {
                     const moveData = this.updateBoard(moveKeys[v]);
 
-                    // Move piece temporarily
-                    let captured = this.capturePiece(moveData['row'], moveData['square'], board, pieces, turn);
-                    this.movePiece(moveData['row'], moveData['square'], piece, pieces, validPieces[p], board);
+                    if (validMoves[moveKeys[v]] !== 'castle') {
+                        // Move piece temporarily
+                        let captured = this.capturePiece(moveData['row'], moveData['square'], board, pieces, turn);
+                        let moved = (piece.moved) ? true : false;
+                        this.movePiece(moveData['row'], moveData['square'], piece, pieces, validPieces[p], board);
 
-                    // Get value of updated board, save to availableMoves
-                    availableMoves[oldRow + ',' + oldSquare + ',' + moveData['row'] + ',' + moveData['square']] = this.getBoardValue(pieces);
+                        // Get value of updated board, save to availableMoves
+                        availableMoves[oldRow + ',' + oldSquare + ',' + moveData['row'] + ',' + moveData['square']] = this.getBoardValue(pieces);
 
-                    // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
-                    this.movePiece(oldRow, oldSquare, piece, pieces, validPieces[p], board);
-                    piece.moved    = false;
-                    piece.captured = false;
-                    if (captured !== false) {
-                        this.movePiece(moveData['row'], moveData['square'], pieces[captured], pieces, captured, board);
-                        pieces[captured].moved    = false;
-                        pieces[captured].captured = false;
+                        // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                        this.movePiece(oldRow, oldSquare, piece, pieces, validPieces[p], board);
+                        piece.moved = moved;
+
+                        // If a piece was captured, un-capture it
+                        this.unCapturePiece(captured, moveData, board, pieces, moved);
+                    } else {
+                        // TODO: Make AI able to castle
                     }
                 }
             }
@@ -1070,6 +1072,14 @@ class Ai extends Chess {
         }
 
         return result;
+    }
+
+    unCapturePiece(captured, moveData, board, pieces, moved) {
+        if (captured !== false) {
+            this.movePiece(moveData['row'], moveData['square'], pieces[captured], pieces, captured, board);
+            pieces[captured].moved    = moved;
+            pieces[captured].captured = false;
+        }
     }
 
     /**
