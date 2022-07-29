@@ -275,6 +275,39 @@ class Chess {
         this.reloadGrid();
     }
 
+    validLeftCastle(piece, pieces, board, r, s) {
+        if (
+            !piece.moved &&
+            board[r][s - 1] === "empty" &&
+            board[r][s - 2] === "empty" &&
+            board[r][s - 3] === "empty" &&
+            board[r][s - 4] !== "empty" &&
+            this.getPiece(board, pieces, r, s - 4).color === piece.color &&
+            this.getPiece(board, pieces, r, s - 4).type === 'rook' &&
+            this.getPiece(board, pieces, r, s - 4).moved === false
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    validRightCastle(piece, pieces, board, r, s) {
+        if (
+            !piece.moves &&
+            board[r][s + 1] === "empty" &&
+            board[r][s + 2] === "empty" &&
+            board[r][s + 3] !== "empty" &&
+            this.getPiece(board, pieces, r, s + 3).color === piece.color &&
+            this.getPiece(board, pieces, r, s + 3).type === 'rook' &&
+            this.getPiece(board, pieces, r, s + 3).moved === false
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     getValidMoves(board, pieces, row, square) {
         let result;
         let piece = this.getPiece(board, pieces, row, square);
@@ -397,27 +430,12 @@ class Chess {
             r = row;
             s = square;
             // left castle
-            if (
-                board[r][s - 1] === "empty" &&
-                board[r][s - 2] === "empty" &&
-                board[r][s - 3] === "empty" &&
-                board[r][s - 4] !== "empty" &&
-                this.getPiece(board, pieces, r, s - 4).color === piece.color &&
-                this.getPiece(board, pieces, r, s - 4).type === 'rook' &&
-                this.getPiece(board, pieces, r, s - 4).moved === false
-            ) {
+            if (this.validLeftCastle(piece, pieces, board, r, s)) {
                 result[r + ',' + (s - 4)] = 'castle';
             }
     
             // right castle
-            if (
-                board[r][s + 1] === "empty" &&
-                board[r][s + 2] === "empty" &&
-                board[r][s + 3] !== "empty" &&
-                this.getPiece(board, pieces, r, s + 3).color === piece.color &&
-                this.getPiece(board, pieces, r, s + 3).type === 'rook' &&
-                this.getPiece(board, pieces, r, s + 3).moved === false
-            ) {
+            if (this.validRightCastle(piece, pieces, board, r, s)) {
                 result[r + ',' + (s + 3)] = 'castle';
             }
         }
