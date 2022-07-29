@@ -977,6 +977,7 @@ class Ai extends Chess {
     }
 
     getMove(board, pieces, turn) {
+        let steps = 3;
         let validPieces = this.getValidPieces(board, pieces);
         let availableMoves = {};
 
@@ -989,23 +990,21 @@ class Ai extends Chess {
                 const moveKeys   = Object.keys(validMoves);
 
                 for (let v = 0; v < moveKeys.length; v++) {
-                    const validMove = moveKeys[v].split(",");
-                    const newRow    = parseInt(validMove[0]);
-                    const newSquare = parseInt(validMove[1]);
+                    const moveData = this.updateBoard(moveKeys[v]);
 
                     // Move piece temporarily
-                    let captured = this.capturePiece(newRow, newSquare, board, pieces, turn);
-                    this.movePiece(newRow, newSquare, piece, pieces, validPieces[p], board);
+                    let captured = this.capturePiece(moveData['row'], moveData['square'], board, pieces, turn);
+                    this.movePiece(moveData['row'], moveData['square'], piece, pieces, validPieces[p], board);
 
                     // Get value of updated board, save to availableMoves
-                    availableMoves[oldRow + ',' + oldSquare + ',' + newRow + ',' + newSquare] = this.getBoardValue(pieces);
+                    availableMoves[oldRow + ',' + oldSquare + ',' + moveData['row'] + ',' + moveData['square']] = this.getBoardValue(pieces);
 
                     // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
                     this.movePiece(oldRow, oldSquare, piece, pieces, validPieces[p], board);
                     piece.moved    = false;
                     piece.captured = false;
                     if (captured !== false) {
-                        this.movePiece(newRow, newSquare, pieces[captured], pieces, captured, board);
+                        this.movePiece(moveData['row'], moveData['square'], pieces[captured], pieces, captured, board);
                         pieces[captured].moved    = false;
                         pieces[captured].captured = false;
                     }
@@ -1029,6 +1028,17 @@ class Ai extends Chess {
         const selectedMove      = preferredMoveKeys[randomIndex].split(',');
         
         return [board[selectedMove[0]][selectedMove[1]], selectedMove[2], selectedMove[3]];
+    }
+
+    updateBoard(moveKey) {
+        const validMove = moveKey.split(",");
+        const newRow    = parseInt(validMove[0]);
+        const newSquare = parseInt(validMove[1]);
+
+        return {
+            row: newRow,
+            square: newSquare,
+        };
     }
 
     getValidPieces(board, pieces, turn = false) {
