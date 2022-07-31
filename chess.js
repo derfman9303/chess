@@ -1017,7 +1017,7 @@ class Ai extends Chess {
 
     getMove(board, pieces, turn) {
         let steps = 3;
-        let validPieces = this.getValidPieces(board, pieces);
+        let validPieces = this.getValidPieces(board, pieces, false);
         let availableMoves = {};
 
         if (validPieces.length > 0) {
@@ -1039,7 +1039,7 @@ class Ai extends Chess {
                         this.movePiece(newData['row'], newData['square'], piece, pieces, validPieces[p], board);
 
                         // Get value of updated board, save to availableMoves
-                        availableMoves[oldRow + ',' + oldSquare + ',' + newData['row'] + ',' + newData['square']] = this.getBoardValue(pieces);
+                        availableMoves[oldRow + ',' + oldSquare + ',' + newData['row'] + ',' + newData['square']] = this.maxi(board, pieces, steps);
 
                         // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
                         this.movePiece(oldRow, oldSquare, piece, pieces, validPieces[p], board);
@@ -1055,7 +1055,7 @@ class Ai extends Chess {
                         // Castle temporarily
                         this.castle(newData['row'], newData['square'], validPieces[p], board, pieces, true);
 
-                        availableMoves[oldRow + ',' + oldSquare + ',' + newData['row'] + ',' + newData['square']] = this.getBoardValue(pieces);
+                        availableMoves[oldRow + ',' + oldSquare + ',' + newData['row'] + ',' + newData['square']] = this.maxi(board, pieces, steps);
 
                         // Un-castle
                         this.unCastle(piece, rook, rookOldRow, rookOldSquare, oldRow, oldSquare, board, pieces);
@@ -1080,6 +1080,132 @@ class Ai extends Chess {
         const selectedMove      = preferredMoveKeys[randomIndex].split(',');
         
         return [board[selectedMove[0]][selectedMove[1]], selectedMove[2], selectedMove[3]];
+    }
+
+    mini(board, pieces, steps) {
+        if (steps === 0) {
+            return this.getBoardValue(pieces);
+        } else {
+            let validPieces = this.getValidPieces(board, pieces, false);
+            let min = Infinity;
+            if (validPieces.length > 0) {
+                for (let p = 0; p < validPieces.length; p++) {
+                    let piece        = pieces[validPieces[p]];
+                    const oldRow     = piece.row;
+                    const oldSquare  = piece.square;
+                    const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare);
+                    const moveKeys   = Object.keys(validMoves);
+    
+                    for (let v = 0; v < moveKeys.length; v++) {
+                        const newData = this.getNewData(moveKeys[v]);
+    
+                        if (validMoves[moveKeys[v]] !== 'castle') {
+    
+                            // Move piece temporarily
+                            const captured = this.capturePiece(newData['row'], newData['square'], board, pieces, false);
+                            const moved    = (piece.moved) ? true : false;
+                            this.movePiece(newData['row'], newData['square'], piece, pieces, validPieces[p], board);
+    
+                            // Get value of updated board, save to availableMoves
+                            let score = this.maxi(board, pieces, steps - 1);
+
+                            if (score < min) {
+                                min = score;
+                            }
+    
+                            // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                            this.movePiece(oldRow, oldSquare, piece, pieces, validPieces[p], board);
+                            piece.moved = moved;
+    
+                            // If a piece was captured, un-capture it
+                            this.unCapturePiece(captured, newData, board, pieces, moved);
+                        } else {
+                            let rook            = pieces[board[newData['row']][newData['square']]];
+                            const rookOldRow    = rook.row;
+                            const rookOldSquare = rook.square;
+    
+                            // Castle temporarily
+                            this.castle(newData['row'], newData['square'], validPieces[p], board, pieces, true);
+    
+                            let score = this.maxi(board, pieces, steps - 1);
+
+                            if (score < min) {
+                                min = score;
+                            }
+    
+                            // Un-castle
+                            this.unCastle(piece, rook, rookOldRow, rookOldSquare, oldRow, oldSquare, board, pieces);
+                        }
+                    }
+                }
+                return min;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    maxi(board, pieces, steps) {
+        if (steps === 0) {
+            return this.getBoardValue(pieces);
+        } else {
+            let validPieces = this.getValidPieces(board, pieces, true);
+            let max = -Infinity;
+            if (validPieces.length > 0) {
+                for (let p = 0; p < validPieces.length; p++) {
+                    let piece        = pieces[validPieces[p]];
+                    const oldRow     = piece.row;
+                    const oldSquare  = piece.square;
+                    const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare);
+                    const moveKeys   = Object.keys(validMoves);
+    
+                    for (let v = 0; v < moveKeys.length; v++) {
+                        const newData = this.getNewData(moveKeys[v]);
+    
+                        if (validMoves[moveKeys[v]] !== 'castle') {
+    
+                            // Move piece temporarily
+                            const captured = this.capturePiece(newData['row'], newData['square'], board, pieces, true);
+                            const moved    = (piece.moved) ? true : false;
+                            this.movePiece(newData['row'], newData['square'], piece, pieces, validPieces[p], board);
+    
+                            // Get value of updated board, save to availableMoves
+                            let score = this.mini(board, pieces, steps - 1);
+
+                            if (score > max) {
+                                max = score;
+                            }
+    
+                            // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                            this.movePiece(oldRow, oldSquare, piece, pieces, validPieces[p], board);
+                            piece.moved = moved;
+    
+                            // If a piece was captured, un-capture it
+                            this.unCapturePiece(captured, newData, board, pieces, moved);
+                        } else {
+                            let rook            = pieces[board[newData['row']][newData['square']]];
+                            const rookOldRow    = rook.row;
+                            const rookOldSquare = rook.square;
+    
+                            // Castle temporarily
+                            this.castle(newData['row'], newData['square'], validPieces[p], board, pieces, true);
+    
+                            let score = this.mini(board, pieces, steps - 1);
+
+                            if (score > max) {
+                                max = score;
+                            }
+    
+                            // Un-castle
+                            this.unCastle(piece, rook, rookOldRow, rookOldSquare, oldRow, oldSquare, board, pieces);
+                        }
+                    }
+                }
+                return max;
+            } else {
+                return false;
+            }
+        }
     }
 
     unCastle(king, rook, rookOldRow, rookOldSquare, kingOldRow, kingOldSquare, board, pieces) {
