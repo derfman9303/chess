@@ -3,6 +3,7 @@
 </head>
 <body>
     <div id="board">
+        <div id="black-captured" class="captured-tray"></div>
         <div class="row">
             <div data-value="" class="square"></div>
             <div data-value="" class="square"></div>
@@ -83,6 +84,7 @@
             <div data-value="" class="square"></div>
             <div data-value="" class="square"></div>
         </div>
+        <div id="white-captured" class="captured-tray"></div>
     </div>
     <div id="overlay" class="hidden"></div>
     <div id="modal" class="hidden">
@@ -110,20 +112,39 @@
         transform: translate(-50%, -50%);
     }
 
+    .captured-tray {
+        min-height: 32px;
+        width: 400px;
+        margin: 20px auto;
+        background-color: #b5b4b3;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .captured-tray svg {
+        height: 25px;
+        width: 25px;
+        padding: 3px;
+    }
+
+
     .row {
         display: flex;
         flex-direction: row;
     }
 
     .square {
-        height: 70px;
-        width: 70px;
+        height: 50px;
+        width: 50px;
     }
 
     .square svg {
-        height: calc(100% - 20px);
-        width: calc(100% - 20px);
-        padding: 10px;
+        height: calc(100% - 15px);
+        width: calc(100% - 15px);
+        padding: 7.5px;
     }
 
     .light {
@@ -196,7 +217,6 @@
 
     @media screen and (max-width: 769px) {
         #board {
-            height: 90vw;
             width: 90vw;
         }
 
@@ -209,6 +229,10 @@
             height: calc(100% - 10px);
             width: calc(100% - 10px);
             padding: 5px;
+        }
+
+        .captured-tray {
+            width: 90vw;
         }
     }
 </style>

@@ -2,6 +2,8 @@ class Chess {
     constructor() {
         this.turn          = true;
         this.squares       = document.getElementsByClassName('square');
+        this.whiteCaptured = document.getElementById('white-captured');
+        this.blackCaptured = document.getElementById('black-captured');
         this.selectedPiece = null;
         this.grid          = [
             [
@@ -233,6 +235,21 @@ class Chess {
                 } else {
                     this.grid[r][s].innerHTML = "";
                     this.grid[r][s].setAttribute("data-value", "");
+                }
+            }
+        }
+
+        // Update the captured pieces
+        this.whiteCaptured.innerHTML = '';
+        this.blackCaptured.innerHTML = '';
+
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].captured) {
+                let icon = this.getIcon(pieces[p].type, pieces[p].color);
+                if (pieces[p].color === 'white') {
+                    this.blackCaptured.innerHTML += icon;
+                } else {
+                    this.whiteCaptured.innerHTML += icon;
                 }
             }
         }
