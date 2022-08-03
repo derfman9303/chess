@@ -1,3 +1,6 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
 <body>
     <div id="board">
         <div class="row">
@@ -189,6 +192,24 @@
 
     .hidden {
         display: none;
+    }
+
+    @media screen and (max-width: 769px) {
+        #board {
+            height: 90vw;
+            width: 90vw;
+        }
+
+        .square {
+            height: calc(90vw / 8);
+            width: calc(90vw / 8);
+        }
+
+        .square svg {
+            height: calc(100% - 10px);
+            width: calc(100% - 10px);
+            padding: 5px;
+        }
     }
 </style>
 
