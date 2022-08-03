@@ -1015,8 +1015,7 @@ class Ai extends Chess {
         this.pawnVal   = 10;
     }
 
-    getMove(board, pieces, turn) {
-        let steps = 3;
+    getMove(board, pieces, turn, steps) {
         let validPieces = this.getValidPieces(board, pieces, false);
         let availableMoves = {};
 
@@ -1035,7 +1034,7 @@ class Ai extends Chess {
 
                         // Move piece temporarily
                         const captured = this.capturePiece(newData['row'], newData['square'], board, pieces, turn);
-                        const moved    = (piece.moved) ? true : false;
+                        const moved    = piece.moved;
                         this.movePiece(newData['row'], newData['square'], piece, pieces, validPieces[p], board);
 
                         // Get value of updated board, save to availableMoves
@@ -1046,7 +1045,7 @@ class Ai extends Chess {
                         piece.moved = moved;
 
                         // If a piece was captured, un-capture it
-                        this.unCapturePiece(captured, newData, board, pieces, moved);
+                        this.unCapturePiece(captured, newData, board, pieces);
                     } else {
                         let rook            = pieces[board[newData['row']][newData['square']]];
                         const rookOldRow    = rook.row;
@@ -1103,7 +1102,7 @@ class Ai extends Chess {
     
                             // Move piece temporarily
                             const captured = this.capturePiece(newData['row'], newData['square'], board, pieces, false);
-                            const moved    = (piece.moved) ? true : false;
+                            const moved    = piece.moved;
                             this.movePiece(newData['row'], newData['square'], piece, pieces, validPieces[p], board);
     
                             // Get value of updated board, save to availableMoves
@@ -1118,7 +1117,7 @@ class Ai extends Chess {
                             piece.moved = moved;
     
                             // If a piece was captured, un-capture it
-                            this.unCapturePiece(captured, newData, board, pieces, moved);
+                            this.unCapturePiece(captured, newData, board, pieces);
                         } else {
                             let rook            = pieces[board[newData['row']][newData['square']]];
                             const rookOldRow    = rook.row;
@@ -1166,7 +1165,7 @@ class Ai extends Chess {
     
                             // Move piece temporarily
                             const captured = this.capturePiece(newData['row'], newData['square'], board, pieces, true);
-                            const moved    = (piece.moved) ? true : false;
+                            const moved    = piece.moved;
                             this.movePiece(newData['row'], newData['square'], piece, pieces, validPieces[p], board);
     
                             // Get value of updated board, save to availableMoves
@@ -1181,7 +1180,7 @@ class Ai extends Chess {
                             piece.moved = moved;
     
                             // If a piece was captured, un-capture it
-                            this.unCapturePiece(captured, newData, board, pieces, moved);
+                            this.unCapturePiece(captured, newData, board, pieces);
                         } else {
                             let rook            = pieces[board[newData['row']][newData['square']]];
                             const rookOldRow    = rook.row;
@@ -1260,9 +1259,13 @@ class Ai extends Chess {
         return result;
     }
 
-    unCapturePiece(captured, newData, board, pieces, moved) {
+    unCapturePiece(captured, newData, board, pieces) {
         if (captured !== false) {
-            this.movePiece(newData['row'], newData['square'], pieces[captured], pieces, captured, board);
+            let piece   = pieces[captured];
+            const moved = piece.moved;
+
+            this.movePiece(newData['row'], newData['square'], piece, pieces, captured, board);
+
             pieces[captured].moved    = moved;
             pieces[captured].captured = false;
         }
@@ -1329,7 +1332,7 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                 // AI makes move
                 if (!chess.turn) {
-                    const move   = ai.getMove(chess.board, chess.pieces, chess.turn);
+                    const move   = ai.getMove(chess.board, chess.pieces, chess.turn, 3);
                     const index  = parseInt(move[0]);
                     const row    = parseInt(move[1]);
                     const square = parseInt(move[2]);
