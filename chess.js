@@ -377,8 +377,14 @@ class Chess {
         let totalMoves = {};
 
         for (let p = 0; p < pieces.length; p++) {
-            if (pieces[p].color === color) {
-                totalMoves[p] = this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square);
+            let piece = (pieces[p].row >= 0 && pieces[p].square >= 0) ? this.getPiece(board, pieces, pieces[p].row, pieces[p].square) : false;
+
+            if (piece && piece.color === color && !piece.captured) {
+                let validMoves = this.getValidMoves(board, pieces, piece.row, piece.square);
+
+                if (validMoves) {
+                    totalMoves[p] = validMoves;
+                }
             }
         }
 
