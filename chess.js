@@ -373,6 +373,14 @@ class Chess {
         return result;
     }
 
+    /**
+     * Returns an object representing each piece's valid moves for a specified color.
+     * The keys are the piece's index in the pieces array, and the values are the objects returned by getValidMoves()
+     * @param {*} board 
+     * @param {*} pieces 
+     * @param {*} color 
+     * @returns 
+     */
     getTotalMoves(board, pieces, color) {
         let totalMoves = {};
 
