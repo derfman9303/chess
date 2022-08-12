@@ -373,6 +373,18 @@ class Chess {
         return result;
     }
 
+    getTotalMoves(board, pieces, color) {
+        let totalMoves = {};
+
+        for (let p = 0; p < pieces.length; p++) {
+            if (pieces[p].color === color) {
+                totalMoves[p] = this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square);
+            }
+        }
+
+        return totalMoves;
+    }
+
     kingValidMoves(board, piece, pieces, row, square) {
         let result = {};
         // up
@@ -1372,7 +1384,8 @@ for (let r = 0; r < chess.grid.length; r++) {
                 }
             } else if (chess.selectPiece(r, s)) {
                 if (chess.getSelectedPiece().color === 'white' && chess.getTurn() === 'white') {
-                    let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
+                    let totalMoves = chess.getTotalMoves(chess.board, chess.pieces, chess.getTurn());
+                    let validMoves = totalMoves[chess.selectedPiece];
 
                     if (Object.keys(validMoves).length > 0) {
                         Object.keys(validMoves).forEach(key => {
