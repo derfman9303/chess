@@ -1018,6 +1018,14 @@ class Chess {
         piece.square = square;
         piece.moved  = true;
     }
+
+    showLoadingAnimation() {
+        document.getElementById('loader-container').classList.add('active-loader');
+    }
+
+    hideLoadingAnimation() {
+        document.getElementById('loader-container').classList.remove('active-loader');
+    }
 }
 
 class Ai extends Chess {
@@ -1336,10 +1344,12 @@ for (let r = 0; r < chess.grid.length; r++) {
 
             if (chess.selectedPiece !== null) {
                 if (chess.grid[r][s].classList.contains("highlighted") || chess.grid[r][s].classList.contains("capture")) {
+                    chess.showLoadingAnimation();
                     chess.movePiece(r, s);
                     chess.reloadGrid();
                     chess.switchTurns();
                 } else if (chess.grid[r][s].classList.contains("castle")) {
+                    chess.showLoadingAnimation();
                     chess.castle(r, s);
                     chess.switchTurns();
                 }
@@ -1349,26 +1359,29 @@ for (let r = 0; r < chess.grid.length; r++) {
 
                 // AI makes move
                 if (!chess.turn) {
-                    const move   = ai.getMove(chess.board, chess.pieces, chess.turn, 3);
-                    const index  = parseInt(move[0]);
-                    const row    = parseInt(move[1]);
-                    const square = parseInt(move[2]);
+                    setTimeout(function() {
+                        const move   = ai.getMove(chess.board, chess.pieces, chess.turn, 3);
+                        const index  = parseInt(move[0]);
+                        const row    = parseInt(move[1]);
+                        const square = parseInt(move[2]);
 
-                    if (move !== false) {
-                        // Wait 1 second before moving piece on the screen, to make it feel more natural
-                        setTimeout(function() {
-                            if (chess.validCastle(chess.pieces[chess.board[0][4]], chess.pieces, chess.board, row, square)) {
-                                chess.castle(row, square, chess.board[0][4], chess.board, chess.pieces);
-                            } else {
-                                chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
-                            }
+                        if (move !== false) {
+                            // Wait 1 second before moving piece on the screen, to make it feel more natural
+                            setTimeout(function() {
+                                if (chess.validCastle(chess.pieces[chess.board[0][4]], chess.pieces, chess.board, row, square)) {
+                                    chess.castle(row, square, chess.board[0][4], chess.board, chess.pieces);
+                                } else {
+                                    chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
+                                }
 
-                            chess.switchTurns();
-                            chess.reloadGrid();
-                        }, 1000);
-                    } else {
-                        // Checkmate by white? Stalemate?
-                    }
+                                chess.switchTurns();
+                                chess.reloadGrid();
+                                chess.hideLoadingAnimation();
+                            }, 1000);
+                        } else {
+                            // Checkmate by white? Stalemate?
+                        }
+                    }, 10);
                 }
             } else if (chess.selectPiece(r, s)) {
                 if (chess.getSelectedPiece().color === 'white' && chess.getTurn() === 'white') {
