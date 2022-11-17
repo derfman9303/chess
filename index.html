@@ -96,7 +96,7 @@
             <div id="bishop" class="modal-square dark"></div>
         </div>
     </div>
-    <div id="loader-container" class="active-loader">
+    <div id="loader-container" class="">
         <div id="loader"></div>
     </div>
 </body>
@@ -219,11 +219,11 @@
     }
 
     #loader {
-        border: 16px solid #f3f3f3;
+        border: 8px solid #f3f3f3;
         border-radius: 50%;
-        border-top: 16px solid #3498db;
-        width: 120px;
-        height: 120px;
+        border-top: 8px solid #3498db;
+        width: 40px;
+        height: 40px;
         /* -webkit-animation: spin 2s linear infinite; /* Safari */
         animation: spin 2s linear infinite; */
     }
@@ -235,7 +235,7 @@
     #loader-container.active-loader {
         display: block;
         position: absolute;
-        top: 50%;
+        top: 8%;
         left: 50%;
         transform: translate(-50%, -50%);
     }
