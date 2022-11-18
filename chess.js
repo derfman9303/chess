@@ -1,79 +1,5 @@
-class Movement {
+class Board {
     constructor() {
-
-    }
-
-    castle(row, square, piece = this.selectedPiece, board = this.board, pieces = this.pieces, recursive = false) {
-
-        // Identify the rook to be castled
-        const rookIndex = board[row][square];
-
-        // Vacate squares
-        board[pieces[piece].row][pieces[piece].square] = 'empty';
-        board[row][square] = 'empty';
-
-        if (square === 7) {
-            // Move the king
-            this.movePiece(row, square - 1, pieces[piece], pieces, piece, board);
-
-            // Move the rook
-            this.movePiece(row, square - 2, pieces[rookIndex], pieces, rookIndex, board);
-        } else if (square === 0) {
-            // Move the king
-            this.movePiece(row, square + 2, pieces[piece], pieces, piece, board);
-
-            // Move the rook
-            this.movePiece(row, square + 3, pieces[rookIndex], pieces, rookIndex, board);
-        }
-
-        if (!recursive) {
-            this.reloadGrid();
-        }
-    }
-
-    unCastle(king, rook, rookOldRow, rookOldSquare, kingOldRow, kingOldSquare, board, pieces) {
-        const rookIndex = board[rook.row][rook.square];
-        const kingIndex = board[king.row][king.square];
-
-        this.movePiece(rookOldRow, rookOldSquare, rook, pieces, rookIndex, board);
-        this.movePiece(kingOldRow, kingOldSquare, king, pieces, kingIndex, board);
-
-        rook.moved  = false;
-        king.moved  = false;
-
-    }
-
-    capturePiece(row, square, board, pieces, turn) {
-        let result = false;
-
-        // If piece exists on row/square, and belongs to the opposite turn
-        if (board[row][square] !== 'empty' && this.getPiece(board, pieces, row, square).color !== this.getTurn(turn)) {
-            result = board[row][square];
-
-            this.getPiece(board, pieces, row, square).captured = true;
-            this.getPiece(board, pieces, row, square).row      = -1;
-            this.getPiece(board, pieces, row, square).square   = -1;
-        }
-
-        return result;
-    }
-
-    unCapturePiece(captured, newData, board, pieces) {
-        if (captured !== false) {
-            let piece   = pieces[captured];
-            const moved = piece.moved;
-
-            this.movePiece(newData['row'], newData['square'], piece, pieces, captured, board);
-
-            pieces[captured].moved    = moved;
-            pieces[captured].captured = false;
-        }
-    }
-}
-
-class Chess extends Movement {
-    constructor() {
-        super();
         this.turn          = true;
         this.squares       = document.getElementsByClassName('square');
         this.whiteCaptured = document.getElementById('white-captured');
@@ -1043,6 +969,81 @@ class Chess extends Movement {
         });
     }
 
+    showLoadingAnimation() {
+        document.getElementById('loader-container').classList.add('active-loader');
+    }
+
+    hideLoadingAnimation() {
+        document.getElementById('loader-container').classList.remove('active-loader');
+    }
+
+    castle(row, square, piece = this.selectedPiece, board = this.board, pieces = this.pieces, recursive = false) {
+
+        // Identify the rook to be castled
+        const rookIndex = board[row][square];
+
+        // Vacate squares
+        board[pieces[piece].row][pieces[piece].square] = 'empty';
+        board[row][square] = 'empty';
+
+        if (square === 7) {
+            // Move the king
+            this.movePiece(row, square - 1, pieces[piece], pieces, piece, board);
+
+            // Move the rook
+            this.movePiece(row, square - 2, pieces[rookIndex], pieces, rookIndex, board);
+        } else if (square === 0) {
+            // Move the king
+            this.movePiece(row, square + 2, pieces[piece], pieces, piece, board);
+
+            // Move the rook
+            this.movePiece(row, square + 3, pieces[rookIndex], pieces, rookIndex, board);
+        }
+
+        if (!recursive) {
+            this.reloadGrid();
+        }
+    }
+
+    unCastle(king, rook, rookOldRow, rookOldSquare, kingOldRow, kingOldSquare, board, pieces) {
+        const rookIndex = board[rook.row][rook.square];
+        const kingIndex = board[king.row][king.square];
+
+        this.movePiece(rookOldRow, rookOldSquare, rook, pieces, rookIndex, board);
+        this.movePiece(kingOldRow, kingOldSquare, king, pieces, kingIndex, board);
+
+        rook.moved  = false;
+        king.moved  = false;
+
+    }
+
+    capturePiece(row, square, board, pieces, turn) {
+        let result = false;
+
+        // If piece exists on row/square, and belongs to the opposite turn
+        if (board[row][square] !== 'empty' && this.getPiece(board, pieces, row, square).color !== this.getTurn(turn)) {
+            result = board[row][square];
+
+            this.getPiece(board, pieces, row, square).captured = true;
+            this.getPiece(board, pieces, row, square).row      = -1;
+            this.getPiece(board, pieces, row, square).square   = -1;
+        }
+
+        return result;
+    }
+
+    unCapturePiece(captured, newData, board, pieces) {
+        if (captured !== false) {
+            let piece   = pieces[captured];
+            const moved = piece.moved;
+
+            this.movePiece(newData['row'], newData['square'], piece, pieces, captured, board);
+
+            pieces[captured].moved    = moved;
+            pieces[captured].captured = false;
+        }
+    }
+
     /**
      * Moves the piece. Must provide the piece, pieces, index and board params if calling function from recursive AI algorithm.
      * Otherwise, uses the default chess game variables to simplify things for the logic at the bottom of the file.
@@ -1074,17 +1075,9 @@ class Chess extends Movement {
         piece.square = square;
         piece.moved  = true;
     }
-
-    showLoadingAnimation() {
-        document.getElementById('loader-container').classList.add('active-loader');
-    }
-
-    hideLoadingAnimation() {
-        document.getElementById('loader-container').classList.remove('active-loader');
-    }
 }
 
-class Ai extends Chess {
+class Ai extends Board {
     constructor() {
         super();
 
