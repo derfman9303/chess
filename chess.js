@@ -1358,32 +1358,31 @@ class Ai extends Chess {
     }
 }
 
-let chess = new Chess();
-let ai    = new Ai();
+let ai = new Ai();
 
-for (let r = 0; r < chess.grid.length; r++) {
-    for (let s = 0; s < chess.grid[r].length; s++) {
-        chess.grid[r][s].addEventListener("click", function() {
+for (let r = 0; r < ai.grid.length; r++) {
+    for (let s = 0; s < ai.grid[r].length; s++) {
+        ai.grid[r][s].addEventListener("click", function() {
 
-            if (chess.selectedPiece !== null) {
-                if (chess.grid[r][s].classList.contains("highlighted") || chess.grid[r][s].classList.contains("capture")) {
-                    chess.showLoadingAnimation();
-                    chess.movePiece(r, s);
-                    chess.reloadGrid();
-                    chess.switchTurns();
-                } else if (chess.grid[r][s].classList.contains("castle")) {
-                    chess.showLoadingAnimation();
-                    chess.castle(r, s);
-                    chess.switchTurns();
+            if (ai.selectedPiece !== null) {
+                if (ai.grid[r][s].classList.contains("highlighted") || ai.grid[r][s].classList.contains("capture")) {
+                    ai.showLoadingAnimation();
+                    ai.movePiece(r, s);
+                    ai.reloadGrid();
+                    ai.switchTurns();
+                } else if (ai.grid[r][s].classList.contains("castle")) {
+                    ai.showLoadingAnimation();
+                    ai.castle(r, s);
+                    ai.switchTurns();
                 }
 
-                chess.selectedPiece = null;
-                chess.removeHighlighting();
+                ai.selectedPiece = null;
+                ai.removeHighlighting();
 
                 // AI makes move
-                if (!chess.turn) {
+                if (!ai.turn) {
                     setTimeout(function() {
-                        const move   = ai.getMove(chess.board, chess.pieces, chess.turn, 3);
+                        const move   = ai.getMove(ai.board, ai.pieces, ai.turn, 3);
                         const index  = parseInt(move[0]);
                         const row    = parseInt(move[1]);
                         const square = parseInt(move[2]);
@@ -1391,37 +1390,37 @@ for (let r = 0; r < chess.grid.length; r++) {
                         if (move !== false) {
                             // Wait 1 second before moving piece on the screen, to make it feel more natural
                             setTimeout(function() {
-                                if (chess.validCastle(chess.pieces[chess.board[0][4]], chess.pieces, chess.board, row, square)) {
-                                    chess.castle(row, square, chess.board[0][4], chess.board, chess.pieces);
+                                if (ai.validCastle(ai.pieces[ai.board[0][4]], ai.pieces, ai.board, row, square)) {
+                                    ai.castle(row, square, ai.board[0][4], ai.board, ai.pieces);
                                 } else {
-                                    chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
+                                    ai.movePiece(row, square, ai.pieces[index], ai.pieces, index, ai.board);
                                 }
 
-                                chess.switchTurns();
-                                chess.reloadGrid();
-                                chess.hideLoadingAnimation();
+                                ai.switchTurns();
+                                ai.reloadGrid();
+                                ai.hideLoadingAnimation();
                             }, 1000);
                         } else {
                             // Checkmate by white? Stalemate?
                         }
                     }, 10);
                 }
-            } else if (chess.selectPiece(r, s)) {
-                if (chess.getSelectedPiece().color === 'white' && chess.getTurn() === 'white') {
-                    let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
+            } else if (ai.selectPiece(r, s)) {
+                if (ai.getSelectedPiece().color === 'white' && ai.getTurn() === 'white') {
+                    let validMoves = ai.getValidMoves(ai.board, ai.pieces, r, s);
 
                     if (Object.keys(validMoves).length > 0) {
                         Object.keys(validMoves).forEach(key => {
                             let vr = key.split(',')[0];
                             let vs = key.split(',')[1];
     
-                            chess.grid[vr][vs].classList.add(validMoves[key]);
+                            ai.grid[vr][vs].classList.add(validMoves[key]);
                         });
                     } else {
-                        chess.selectedPiece = null;
+                        ai.selectedPiece = null;
                     }
                 } else {
-                    chess.selectedPiece = null;
+                    ai.selectedPiece = null;
                 }
             }
         });
