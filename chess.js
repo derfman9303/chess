@@ -1,4 +1,4 @@
-class Chess {
+class Board {
     constructor() {
         this.turn          = true;
         this.squares       = document.getElementsByClassName('square');
@@ -266,34 +266,6 @@ class Chess {
         };
     }
 
-    castle(row, square, piece = this.selectedPiece, board = this.board, pieces = this.pieces, recursive = false) {
-
-        // Identify the rook to be castled
-        const rookIndex = board[row][square];
-
-        // Vacate squares
-        board[pieces[piece].row][pieces[piece].square] = 'empty';
-        board[row][square] = 'empty';
-
-        if (square === 7) {
-            // Move the king
-            this.movePiece(row, square - 1, pieces[piece], pieces, piece, board);
-
-            // Move the rook
-            this.movePiece(row, square - 2, pieces[rookIndex], pieces, rookIndex, board);
-        } else if (square === 0) {
-            // Move the king
-            this.movePiece(row, square + 2, pieces[piece], pieces, piece, board);
-
-            // Move the rook
-            this.movePiece(row, square + 3, pieces[rookIndex], pieces, rookIndex, board);
-        }
-
-        if (!recursive) {
-            this.reloadGrid();
-        }
-    }
-
     validCastle(piece, pieces, board, r, s) {
         let result = false;
 
@@ -373,16 +345,26 @@ class Chess {
         return result;
     }
 
+    kingTargeted(piece, r, s) {
+        let result = false;
+            // for (let i = 0;) {
+
+            // }
+        return result;
+    }
+
     kingValidMoves(board, piece, pieces, row, square) {
         let result = {};
         // up
         let r = row - 1;
         let s = square;
         if (r >= 0) {
-            if (board[r][s] === "empty") {
-                result[r + ',' + s] = 'highlighted';
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
-                result[r + ',' + s] = 'capture';
+            if (this.kingTargeted(piece, r, s) == false) {
+                if (board[r][s] === "empty") {
+                    result[r + ',' + s] = 'highlighted';
+                } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                    result[r + ',' + s] = 'capture';
+                }
             }
         }
 
@@ -987,6 +969,81 @@ class Chess {
         });
     }
 
+    showLoadingAnimation() {
+        document.getElementById('loader-container').classList.add('active-loader');
+    }
+
+    hideLoadingAnimation() {
+        document.getElementById('loader-container').classList.remove('active-loader');
+    }
+
+    castle(row, square, piece = this.selectedPiece, board = this.board, pieces = this.pieces, recursive = false) {
+
+        // Identify the rook to be castled
+        const rookIndex = board[row][square];
+
+        // Vacate squares
+        board[pieces[piece].row][pieces[piece].square] = 'empty';
+        board[row][square] = 'empty';
+
+        if (square === 7) {
+            // Move the king
+            this.movePiece(row, square - 1, pieces[piece], pieces, piece, board);
+
+            // Move the rook
+            this.movePiece(row, square - 2, pieces[rookIndex], pieces, rookIndex, board);
+        } else if (square === 0) {
+            // Move the king
+            this.movePiece(row, square + 2, pieces[piece], pieces, piece, board);
+
+            // Move the rook
+            this.movePiece(row, square + 3, pieces[rookIndex], pieces, rookIndex, board);
+        }
+
+        if (!recursive) {
+            this.reloadGrid();
+        }
+    }
+
+    unCastle(king, rook, rookOldRow, rookOldSquare, kingOldRow, kingOldSquare, board, pieces) {
+        const rookIndex = board[rook.row][rook.square];
+        const kingIndex = board[king.row][king.square];
+
+        this.movePiece(rookOldRow, rookOldSquare, rook, pieces, rookIndex, board);
+        this.movePiece(kingOldRow, kingOldSquare, king, pieces, kingIndex, board);
+
+        rook.moved  = false;
+        king.moved  = false;
+
+    }
+
+    capturePiece(row, square, board, pieces, turn) {
+        let result = false;
+
+        // If piece exists on row/square, and belongs to the opposite turn
+        if (board[row][square] !== 'empty' && this.getPiece(board, pieces, row, square).color !== this.getTurn(turn)) {
+            result = board[row][square];
+
+            this.getPiece(board, pieces, row, square).captured = true;
+            this.getPiece(board, pieces, row, square).row      = -1;
+            this.getPiece(board, pieces, row, square).square   = -1;
+        }
+
+        return result;
+    }
+
+    unCapturePiece(captured, newData, board, pieces) {
+        if (captured !== false) {
+            let piece   = pieces[captured];
+            const moved = piece.moved;
+
+            this.movePiece(newData['row'], newData['square'], piece, pieces, captured, board);
+
+            pieces[captured].moved    = moved;
+            pieces[captured].captured = false;
+        }
+    }
+
     /**
      * Moves the piece. Must provide the piece, pieces, index and board params if calling function from recursive AI algorithm.
      * Otherwise, uses the default chess game variables to simplify things for the logic at the bottom of the file.
@@ -1018,17 +1075,9 @@ class Chess {
         piece.square = square;
         piece.moved  = true;
     }
-
-    showLoadingAnimation() {
-        document.getElementById('loader-container').classList.add('active-loader');
-    }
-
-    hideLoadingAnimation() {
-        document.getElementById('loader-container').classList.remove('active-loader');
-    }
 }
 
-class Ai extends Chess {
+class Ai extends Board {
     constructor() {
         super();
 
@@ -1232,18 +1281,12 @@ class Ai extends Chess {
         }
     }
 
-    unCastle(king, rook, rookOldRow, rookOldSquare, kingOldRow, kingOldSquare, board, pieces) {
-        const rookIndex = board[rook.row][rook.square];
-        const kingIndex = board[king.row][king.square];
-
-        this.movePiece(rookOldRow, rookOldSquare, rook, pieces, rookIndex, board);
-        this.movePiece(kingOldRow, kingOldSquare, king, pieces, kingIndex, board);
-
-        rook.moved  = false;
-        king.moved  = false;
-
-    }
-
+    /**
+     * I'm pretty sure this function is returning a fresh copy of some data that isn't by reference, so no risk changing the original
+     * 
+     * @param {*} moveKey 
+     * @returns 
+     */
     getNewData(moveKey) {
         const validMove = moveKey.split(",");
 
@@ -1267,33 +1310,6 @@ class Ai extends Chess {
         }
 
         return result;
-    }
-
-    capturePiece(row, square, board, pieces, turn) {
-        let result = false;
-
-        // If piece exists on row/square, and belongs to the opposite turn
-        if (board[row][square] !== 'empty' && this.getPiece(board, pieces, row, square).color !== this.getTurn(turn)) {
-            result = board[row][square];
-
-            this.getPiece(board, pieces, row, square).captured = true;
-            this.getPiece(board, pieces, row, square).row      = -1;
-            this.getPiece(board, pieces, row, square).square   = -1;
-        }
-
-        return result;
-    }
-
-    unCapturePiece(captured, newData, board, pieces) {
-        if (captured !== false) {
-            let piece   = pieces[captured];
-            const moved = piece.moved;
-
-            this.movePiece(newData['row'], newData['square'], piece, pieces, captured, board);
-
-            pieces[captured].moved    = moved;
-            pieces[captured].captured = false;
-        }
     }
 
     /**
@@ -1335,32 +1351,31 @@ class Ai extends Chess {
     }
 }
 
-let chess = new Chess();
-let ai    = new Ai();
+let ai = new Ai();
 
-for (let r = 0; r < chess.grid.length; r++) {
-    for (let s = 0; s < chess.grid[r].length; s++) {
-        chess.grid[r][s].addEventListener("click", function() {
+for (let r = 0; r < ai.grid.length; r++) {
+    for (let s = 0; s < ai.grid[r].length; s++) {
+        ai.grid[r][s].addEventListener("click", function() {
 
-            if (chess.selectedPiece !== null) {
-                if (chess.grid[r][s].classList.contains("highlighted") || chess.grid[r][s].classList.contains("capture")) {
-                    chess.showLoadingAnimation();
-                    chess.movePiece(r, s);
-                    chess.reloadGrid();
-                    chess.switchTurns();
-                } else if (chess.grid[r][s].classList.contains("castle")) {
-                    chess.showLoadingAnimation();
-                    chess.castle(r, s);
-                    chess.switchTurns();
+            if (ai.selectedPiece !== null) {
+                if (ai.grid[r][s].classList.contains("highlighted") || ai.grid[r][s].classList.contains("capture")) {
+                    ai.showLoadingAnimation();
+                    ai.movePiece(r, s);
+                    ai.reloadGrid();
+                    ai.switchTurns();
+                } else if (ai.grid[r][s].classList.contains("castle")) {
+                    ai.showLoadingAnimation();
+                    ai.castle(r, s);
+                    ai.switchTurns();
                 }
 
-                chess.selectedPiece = null;
-                chess.removeHighlighting();
+                ai.selectedPiece = null;
+                ai.removeHighlighting();
 
                 // AI makes move
-                if (!chess.turn) {
+                if (!ai.turn) {
                     setTimeout(function() {
-                        const move   = ai.getMove(chess.board, chess.pieces, chess.turn, 3);
+                        const move   = ai.getMove(ai.board, ai.pieces, ai.turn, 3);
                         const index  = parseInt(move[0]);
                         const row    = parseInt(move[1]);
                         const square = parseInt(move[2]);
@@ -1368,37 +1383,37 @@ for (let r = 0; r < chess.grid.length; r++) {
                         if (move !== false) {
                             // Wait 1 second before moving piece on the screen, to make it feel more natural
                             setTimeout(function() {
-                                if (chess.validCastle(chess.pieces[chess.board[0][4]], chess.pieces, chess.board, row, square)) {
-                                    chess.castle(row, square, chess.board[0][4], chess.board, chess.pieces);
+                                if (ai.validCastle(ai.pieces[ai.board[0][4]], ai.pieces, ai.board, row, square)) {
+                                    ai.castle(row, square, ai.board[0][4], ai.board, ai.pieces);
                                 } else {
-                                    chess.movePiece(row, square, chess.pieces[index], chess.pieces, index, chess.board);
+                                    ai.movePiece(row, square, ai.pieces[index], ai.pieces, index, ai.board);
                                 }
 
-                                chess.switchTurns();
-                                chess.reloadGrid();
-                                chess.hideLoadingAnimation();
+                                ai.switchTurns();
+                                ai.reloadGrid();
+                                ai.hideLoadingAnimation();
                             }, 1000);
                         } else {
                             // Checkmate by white? Stalemate?
                         }
                     }, 10);
                 }
-            } else if (chess.selectPiece(r, s)) {
-                if (chess.getSelectedPiece().color === 'white' && chess.getTurn() === 'white') {
-                    let validMoves = chess.getValidMoves(chess.board, chess.pieces, r, s);
+            } else if (ai.selectPiece(r, s)) {
+                if (ai.getSelectedPiece().color === 'white' && ai.getTurn() === 'white') {
+                    let validMoves = ai.getValidMoves(ai.board, ai.pieces, r, s);
 
                     if (Object.keys(validMoves).length > 0) {
                         Object.keys(validMoves).forEach(key => {
                             let vr = key.split(',')[0];
                             let vs = key.split(',')[1];
     
-                            chess.grid[vr][vs].classList.add(validMoves[key]);
+                            ai.grid[vr][vs].classList.add(validMoves[key]);
                         });
                     } else {
-                        chess.selectedPiece = null;
+                        ai.selectedPiece = null;
                     }
                 } else {
-                    chess.selectedPiece = null;
+                    ai.selectedPiece = null;
                 }
             }
         });
