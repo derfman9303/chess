@@ -1,5 +1,79 @@
-class Chess {
+class Movement {
     constructor() {
+
+    }
+
+    castle(row, square, piece = this.selectedPiece, board = this.board, pieces = this.pieces, recursive = false) {
+
+        // Identify the rook to be castled
+        const rookIndex = board[row][square];
+
+        // Vacate squares
+        board[pieces[piece].row][pieces[piece].square] = 'empty';
+        board[row][square] = 'empty';
+
+        if (square === 7) {
+            // Move the king
+            this.movePiece(row, square - 1, pieces[piece], pieces, piece, board);
+
+            // Move the rook
+            this.movePiece(row, square - 2, pieces[rookIndex], pieces, rookIndex, board);
+        } else if (square === 0) {
+            // Move the king
+            this.movePiece(row, square + 2, pieces[piece], pieces, piece, board);
+
+            // Move the rook
+            this.movePiece(row, square + 3, pieces[rookIndex], pieces, rookIndex, board);
+        }
+
+        if (!recursive) {
+            this.reloadGrid();
+        }
+    }
+
+    unCastle(king, rook, rookOldRow, rookOldSquare, kingOldRow, kingOldSquare, board, pieces) {
+        const rookIndex = board[rook.row][rook.square];
+        const kingIndex = board[king.row][king.square];
+
+        this.movePiece(rookOldRow, rookOldSquare, rook, pieces, rookIndex, board);
+        this.movePiece(kingOldRow, kingOldSquare, king, pieces, kingIndex, board);
+
+        rook.moved  = false;
+        king.moved  = false;
+
+    }
+
+    capturePiece(row, square, board, pieces, turn) {
+        let result = false;
+
+        // If piece exists on row/square, and belongs to the opposite turn
+        if (board[row][square] !== 'empty' && this.getPiece(board, pieces, row, square).color !== this.getTurn(turn)) {
+            result = board[row][square];
+
+            this.getPiece(board, pieces, row, square).captured = true;
+            this.getPiece(board, pieces, row, square).row      = -1;
+            this.getPiece(board, pieces, row, square).square   = -1;
+        }
+
+        return result;
+    }
+
+    unCapturePiece(captured, newData, board, pieces) {
+        if (captured !== false) {
+            let piece   = pieces[captured];
+            const moved = piece.moved;
+
+            this.movePiece(newData['row'], newData['square'], piece, pieces, captured, board);
+
+            pieces[captured].moved    = moved;
+            pieces[captured].captured = false;
+        }
+    }
+}
+
+class Chess extends Movement {
+    constructor() {
+        super();
         this.turn          = true;
         this.squares       = document.getElementsByClassName('square');
         this.whiteCaptured = document.getElementById('white-captured');
@@ -266,34 +340,6 @@ class Chess {
         };
     }
 
-    castle(row, square, piece = this.selectedPiece, board = this.board, pieces = this.pieces, recursive = false) {
-
-        // Identify the rook to be castled
-        const rookIndex = board[row][square];
-
-        // Vacate squares
-        board[pieces[piece].row][pieces[piece].square] = 'empty';
-        board[row][square] = 'empty';
-
-        if (square === 7) {
-            // Move the king
-            this.movePiece(row, square - 1, pieces[piece], pieces, piece, board);
-
-            // Move the rook
-            this.movePiece(row, square - 2, pieces[rookIndex], pieces, rookIndex, board);
-        } else if (square === 0) {
-            // Move the king
-            this.movePiece(row, square + 2, pieces[piece], pieces, piece, board);
-
-            // Move the rook
-            this.movePiece(row, square + 3, pieces[rookIndex], pieces, rookIndex, board);
-        }
-
-        if (!recursive) {
-            this.reloadGrid();
-        }
-    }
-
     validCastle(piece, pieces, board, r, s) {
         let result = false;
 
@@ -373,16 +419,26 @@ class Chess {
         return result;
     }
 
+    kingTargeted(piece, r, s) {
+        let result = false;
+            // for (let i = 0;) {
+
+            // }
+        return result;
+    }
+
     kingValidMoves(board, piece, pieces, row, square) {
         let result = {};
         // up
         let r = row - 1;
         let s = square;
         if (r >= 0) {
-            if (board[r][s] === "empty") {
-                result[r + ',' + s] = 'highlighted';
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
-                result[r + ',' + s] = 'capture';
+            if (this.kingTargeted(piece, r, s) == false) {
+                if (board[r][s] === "empty") {
+                    result[r + ',' + s] = 'highlighted';
+                } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                    result[r + ',' + s] = 'capture';
+                }
             }
         }
 
@@ -1232,18 +1288,12 @@ class Ai extends Chess {
         }
     }
 
-    unCastle(king, rook, rookOldRow, rookOldSquare, kingOldRow, kingOldSquare, board, pieces) {
-        const rookIndex = board[rook.row][rook.square];
-        const kingIndex = board[king.row][king.square];
-
-        this.movePiece(rookOldRow, rookOldSquare, rook, pieces, rookIndex, board);
-        this.movePiece(kingOldRow, kingOldSquare, king, pieces, kingIndex, board);
-
-        rook.moved  = false;
-        king.moved  = false;
-
-    }
-
+    /**
+     * I'm pretty sure this function is returning a fresh copy of some data that isn't by reference, so no risk changing the original
+     * 
+     * @param {*} moveKey 
+     * @returns 
+     */
     getNewData(moveKey) {
         const validMove = moveKey.split(",");
 
@@ -1267,33 +1317,6 @@ class Ai extends Chess {
         }
 
         return result;
-    }
-
-    capturePiece(row, square, board, pieces, turn) {
-        let result = false;
-
-        // If piece exists on row/square, and belongs to the opposite turn
-        if (board[row][square] !== 'empty' && this.getPiece(board, pieces, row, square).color !== this.getTurn(turn)) {
-            result = board[row][square];
-
-            this.getPiece(board, pieces, row, square).captured = true;
-            this.getPiece(board, pieces, row, square).row      = -1;
-            this.getPiece(board, pieces, row, square).square   = -1;
-        }
-
-        return result;
-    }
-
-    unCapturePiece(captured, newData, board, pieces) {
-        if (captured !== false) {
-            let piece   = pieces[captured];
-            const moved = piece.moved;
-
-            this.movePiece(newData['row'], newData['square'], piece, pieces, captured, board);
-
-            pieces[captured].moved    = moved;
-            pieces[captured].captured = false;
-        }
     }
 
     /**
