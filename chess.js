@@ -345,26 +345,16 @@ class Board {
         return result;
     }
 
-    kingTargeted(piece, r, s) {
-        let result = false;
-            // for (let i = 0;) {
-
-            // }
-        return result;
-    }
-
     kingValidMoves(board, piece, pieces, row, square) {
         let result = {};
         // up
         let r = row - 1;
         let s = square;
         if (r >= 0) {
-            if (this.kingTargeted(piece, r, s) == false) {
-                if (board[r][s] === "empty") {
-                    result[r + ',' + s] = 'highlighted';
-                } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
-                    result[r + ',' + s] = 'capture';
-                }
+            if (board[r][s] === "empty") {
+                result[r + ',' + s] = 'highlighted';
+            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                result[r + ',' + s] = 'capture';
             }
         }
 
