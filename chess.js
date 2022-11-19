@@ -1345,15 +1345,16 @@ let ai = new Ai();
 
 for (let r = 0; r < ai.grid.length; r++) {
     for (let s = 0; s < ai.grid[r].length; s++) {
-        ai.grid[r][s].addEventListener("click", function() {
+        const clickedSquare = ai.grid[r][s];
 
+        clickedSquare.addEventListener("click", function() {
             if (ai.selectedPiece !== null) {
-                if (ai.grid[r][s].classList.contains("highlighted") || ai.grid[r][s].classList.contains("capture")) {
+                if (clickedSquare.classList.contains("highlighted") || clickedSquare.classList.contains("capture")) {
                     ai.showLoadingAnimation();
                     ai.movePiece(r, s);
                     ai.reloadGrid();
                     ai.switchTurns();
-                } else if (ai.grid[r][s].classList.contains("castle")) {
+                } else if (clickedSquare.classList.contains("castle")) {
                     ai.showLoadingAnimation();
                     ai.castle(r, s);
                     ai.switchTurns();
