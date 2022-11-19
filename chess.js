@@ -317,44 +317,90 @@ class Board {
         return false;
     }
 
-    getValidMoves(board, pieces, row, square) {
+    /**
+     * Get the valid moves for a given piece at x-y coords
+     * @param {*} board 
+     * @param {*} pieces 
+     * @param {*} row 
+     * @param {*} square 
+     * @returns 
+     */
+    getValidMoves(board, pieces, row, square, king, opponentPieces = []) {
         let result;
         let piece = this.getPiece(board, pieces, row, square);
 
         switch (piece.type) {
             case 'king':
-                result = this.kingValidMoves(board, piece, pieces, row, square);
+                result = this.kingValidMoves(board, piece, pieces, row, square, opponentPieces, king);
                 break;
             case 'queen':
-                result = this.queenValidMoves(board, piece, pieces, row, square);
+                result = this.queenValidMoves(board, piece, pieces, row, square, opponentPieces);
                 break;
             case 'rook':
-                result = this.rookValidMoves(board, piece, pieces, row, square);
+                result = this.rookValidMoves(board, piece, pieces, row, square, opponentPieces);
                 break;
             case 'bishop':
-                result = this.bishopValidMoves(board, piece, pieces, row, square);
+                result = this.bishopValidMoves(board, piece, pieces, row, square, opponentPieces);
                 break;
             case 'knight':
-                result = this.knightValidMoves(board, piece, pieces, row, square);
+                result = this.knightValidMoves(board, piece, pieces, row, square, opponentPieces);
                 break;
             case 'pawn':
-                result = this.pawnValidMoves(board, piece, pieces, row, square);
+                result = this.pawnValidMoves(board, piece, pieces, row, square, opponentPieces);
                 break;
         }
 
         return result;
     }
 
-    kingValidMoves(board, piece, pieces, row, square) {
+    /**
+     * Returns true if the opponent has a piece currently targeting your king (king is in check)
+     * 
+     * @param {*} piece 
+     * @param {*} opponentPieces 
+     * @param {*} r 
+     * @param {*} s 
+     * @param {*} king 
+     * @returns 
+     */
+    kingTargeted(king, opponentPieces, r, s) {
+        let result = false;
+
+        if (opponentPieces.length > 0) {
+            for (let v = 0; v < opponentPieces.length; i++) {
+                const validMoves = this.getValidMoves(board, pieces, r, s, king, opponentPieces);
+                const validMoveKeys = Object.keys(validMoves);
+
+                for (let m = 0; m < validMoveKeys.length; m++) {
+                    if (validMoves[validMoveKeys[m]] == 'capture') {
+                        const splitKey = validMoveKeys[m].split(',');
+                        const row      = intVal(splitKey[0]);
+                        const square   = intVal(splitKey[1]);
+
+                        if (row === king.row && square === king.square) {
+                            result = true;
+                            break;
+                        }
+                    }
+                }                
+            }
+        }
+
+        return result;
+    }
+
+    kingValidMoves(board, piece, pieces, row, square, opponentPieces, king) {
         let result = {};
         // up
         let r = row - 1;
         let s = square;
         if (r >= 0) {
-            if (board[r][s] === "empty") {
-                result[r + ',' + s] = 'highlighted';
-            } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
-                result[r + ',' + s] = 'capture';
+            if (this.kingTargeted(king, opponentPieces, r, s) == false) {
+                if (board[r][s] === "empty") {
+                    result[r + ',' + s] = 'highlighted';
+                } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
+                    result[r + ',' + s] = 'capture';
+                }
             }
         }
 
@@ -452,8 +498,7 @@ class Board {
         return result;
     }
 
-
-    queenValidMoves(board, piece, pieces, row, square) {
+    queenValidMoves(board, piece, pieces, row, square, opponentPieces) {
         let result = {};
         // up
         let r = row;
@@ -582,7 +627,7 @@ class Board {
         return result;
     }
 
-    rookValidMoves(board, piece, pieces, row, square) {
+    rookValidMoves(board, piece, pieces, row, square, opponentPieces) {
         let result = {};
         // up
         let r = row;
@@ -647,7 +692,7 @@ class Board {
         return result;
     }
 
-    bishopValidMoves(board, piece, pieces, row, square) {
+    bishopValidMoves(board, piece, pieces, row, square, opponentPieces) {
         let result = {};
         // up/right diagonal
         let r = row;
@@ -716,7 +761,7 @@ class Board {
         return result;
     }
 
-    knightValidMoves(board, piece, pieces, row, square) {
+    knightValidMoves(board, piece, pieces, row, square, opponentPieces) {
         let result = {};
 
         // up 1
@@ -810,7 +855,7 @@ class Board {
         return result;
     }
 
-    pawnValidMoves(board, piece, pieces, row, square) {
+    pawnValidMoves(board, piece, pieces, row, square, opponentPieces) {
         let result = {};
 
         if (piece.color === "white") {
@@ -1065,6 +1110,31 @@ class Board {
         piece.square = square;
         piece.moved  = true;
     }
+
+    getValidPieces(board, pieces, turn = false) {
+        let myPieces = [];
+        let opponentPieces = [];
+        let king;
+
+        for (let p = 0; p < pieces.length; p++) {
+            let piece = pieces[p];
+            
+            // Find the king to be used by checkmate logic
+            if (piece.color === this.getTurn(turn) && piece.type === 'king') {
+                king = piece;
+            }
+
+            // If piece is not captured, and has at least 1 valid move, push to piece list according to its color
+            if (
+                !piece.captured && Object.keys(this.getValidMoves(board, pieces, piece.row, piece.square)).length > 0
+            ) {
+                let pieceList = piece.color === this.getTurn(turn) ? myPieces : opponentPieces;
+                pieceList.push(p);
+            }
+        }
+
+        return [myPieces, opponentPieces, king];
+    }
 }
 
 class Ai extends Board {
@@ -1080,15 +1150,18 @@ class Ai extends Board {
     }
 
     getMove(board, pieces, turn, steps) {
-        let validPieces = this.getValidPieces(board, pieces, false);
-        let availableMoves = {};
+        let totalValidPieces = this.getValidPieces(board, pieces, false);
+        let validPieces      = totalValidPieces[0];
+        let opponentPieces   = totalValidPieces[1];
+        let king             = totalValidPieces[2];
+        let availableMoves   = {};
 
         if (validPieces.length > 0) {
             for (let p = 0; p < validPieces.length; p++) {
                 let piece        = pieces[validPieces[p]];
                 const oldRow     = piece.row;
                 const oldSquare  = piece.square;
-                const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare);
+                const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare, king, opponentPieces);
                 const moveKeys   = Object.keys(validMoves);
 
                 for (let v = 0; v < moveKeys.length; v++) {
@@ -1149,7 +1222,7 @@ class Ai extends Board {
         if (steps === 0) {
             return this.getBoardValue(pieces);
         } else {
-            let validPieces = this.getValidPieces(board, pieces, false);
+            let validPieces = this.getValidPieces(board, pieces, false)[0];
             let min = Infinity;
             if (validPieces.length > 0) {
                 for (let p = 0; p < validPieces.length; p++) {
@@ -1212,7 +1285,7 @@ class Ai extends Board {
         if (steps === 0) {
             return this.getBoardValue(pieces);
         } else {
-            let validPieces = this.getValidPieces(board, pieces, true);
+            let validPieces = this.getValidPieces(board, pieces, true)[0];
             let max = -Infinity;
             if (validPieces.length > 0) {
                 for (let p = 0; p < validPieces.length; p++) {
@@ -1284,22 +1357,6 @@ class Ai extends Board {
             row: parseInt(validMove[0]),
             square: parseInt(validMove[1]),
         };
-    }
-
-    getValidPieces(board, pieces, turn = false) {
-        let result = [];
-
-        for (let p = 0; p < pieces.length; p++) {
-            // If piece's color matches the turn, not captured, and has at least 1 valid move
-            if (
-                pieces[p].color === this.getTurn(turn) &&
-                !pieces[p].captured && Object.keys(this.getValidMoves(board, pieces, pieces[p].row, pieces[p].square)).length > 0
-            ) {
-                result.push(p);
-            }
-        }
-
-        return result;
     }
 
     /**
