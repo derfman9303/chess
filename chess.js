@@ -132,6 +132,7 @@ class Board {
             this.newPiece('pawn', 'black', 1, 7),
         ];
 
+        this.indexPieces();
         this.paintBoard();
         this.loadBoard();
         this.reloadGrid();
@@ -190,6 +191,15 @@ class Board {
         }
 
         return result;
+    }
+
+    /**
+     * Iterates over the pieces once, and saves their index on the piece itself so it can be used without having to iterate over them all just to find it again.
+     */
+    indexPieces() {
+        for (let p = 0; p < this.pieces.length; p++) {
+            this.pieces[p].index = p;
+        }
     }
 
     /**
@@ -263,6 +273,7 @@ class Board {
             square: square,
             moved: false,
             captured: false,
+            index: null,
         };
     }
 
@@ -362,20 +373,20 @@ class Board {
      * @param {*} s 
      * @returns
      */
-    kingTargeted(king, opponentPieces, r, s) {
+    kingTargeted(board, king, pieces, opponentPieces) {
         if (opponentPieces.length > 0) {
-            for (let v = 0; v < opponentPieces.length; i++) {
-                const opponentPiece = opponentPieces[v];
-                const validMoves = this.getValidMoves(board, opponentPieces, opponentPiece.row, opponentPiece.square);
+            for (let v = 0; v < opponentPieces.length; v++) {
+                const opponentPiece = pieces[opponentPieces[v]];
+                const validMoves    = this.getValidMoves(board, pieces, opponentPiece.row, opponentPiece.square);
                 const validMoveKeys = Object.keys(validMoves);
 
                 for (let m = 0; m < validMoveKeys.length; m++) {
                     if (validMoves[validMoveKeys[m]] == 'capture') {
                         const splitKey = validMoveKeys[m].split(',');
-                        const row      = intVal(splitKey[0]);
-                        const square   = intVal(splitKey[1]);
+                        const row      = parseInt(splitKey[0]);
+                        const square   = parseInt(splitKey[1]);
 
-                        if (row === king.row && square === king.square) {
+                        if (row == king.row && square == king.square) {
                             return true;
                         }
                     }
@@ -395,12 +406,48 @@ class Board {
      * @param {*} s 
      * @returns 
      */
-    doesMoveCauseCheck(king, opponentPieces, r, s) {
-        // TODO: Move piece
+    doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) {
+        let result       = false;
+        const oldRow     = piece.row;
+        const oldSquare  = piece.square;
 
-        let result = this.kingTargeted(king, opponentPieces, r, s);
+        if (board[r][s] === "empty" || this.getPiece(board, pieces, r, s).color !== piece.color) {
+            if (board[r][s] !== 'castle') {
+                // Move piece temporarily
+                const captured = this.capturePiece(r, s, board, pieces, king.color);
+                const moved    = piece.moved;
+                this.movePiece(r, s, piece, pieces, piece.index, board);
+    
+                // Determine if king is targeted in new board state
+                result = this.kingTargeted(board, king, pieces, opponentPieces);
+    
+                // Move piece back to original position, and un-capture the piece if one was captured in the previous temporary move
+                this.movePiece(oldRow, oldSquare, piece, pieces, piece.index, board);
+                piece.moved = moved;
+    
+                // If a piece was captured, un-capture it
+                this.unCapturePiece(captured, {row: r, square: s}, board, pieces);
+            } else {
+                // TODO: Simulate castle move. Needs to check if the king passes through check in the process.
+            }
+        }
 
-        // TODO: Move piece back
+        return result;
+    }
+
+    /**
+     * Returns the king object for whoever's turn it is
+     * @returns king object
+     */
+    getKing() {
+        let result;
+
+        for (let p = 0; p < this.pieces.length; p++) {
+            let piece = this.pieces[p];
+            if (piece.type === 'king' && piece.color === this.getTurn(this.turn)) {
+                result = king;
+            }
+        }
 
         return result;
     }
@@ -413,7 +460,7 @@ class Board {
         if (r >= 0) {
             // If king is set, check if the move in question would result in the king being targeted. Otherwise, equate to true so that the checkmate logic is ignored.
             // We can ignore it because if you can make a move on your turn to capture the opponent's king, you don't need to worry about putting yourself in check or checkmate because the game ends.
-            if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
+            if (!king ? true : (this.doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
                 } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
@@ -426,7 +473,7 @@ class Board {
         r = row + 1;
         s = square;
         if (r < 8) {
-            if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
+            if (!king ? true : (this.doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
                 } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
@@ -439,7 +486,7 @@ class Board {
         r = row;
         s = square - 1;
         if (s >= 0) {
-            if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
+            if (!king ? true : (this.doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
                 } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
@@ -452,7 +499,7 @@ class Board {
         r = row;
         s = square + 1;
         if (s < 8) {
-            if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
+            if (!king ? true : (this.doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
                 } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
@@ -465,7 +512,7 @@ class Board {
         r = row - 1;
         s = square - 1;
         if (r >= 0 && s >= 0) {
-            if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
+            if (!king ? true : (this.doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
                 } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
@@ -478,7 +525,7 @@ class Board {
         r = row - 1;
         s = square + 1;
         if (r >= 0 && s < 8) {
-            if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
+            if (!king ? true : (this.doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
                 } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
@@ -491,7 +538,7 @@ class Board {
         r = row + 1;
         s = square - 1;
         if (r < 8 && s >= 0) {
-            if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
+            if (!king ? true : (this.doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
                 } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
@@ -504,7 +551,7 @@ class Board {
         r = row + 1;
         s = square + 1;
         if (r < 8 && s < 8) {
-            if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
+            if (!king ? true : (this.doesMoveCauseCheck(board, king, piece, pieces, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
                 } else if (this.getPiece(board, pieces, r, s).color !== piece.color) {
@@ -995,15 +1042,19 @@ class Board {
     }
 
     /**
-     * Returns the turn color string, given the boolean turn value
+     * Returns the turn color string, given the boolean turn value. Also accepts the string value, in that case it just returns it.
      * @param {*} turn 
      * @returns 
      */
     getTurn(turn = this.turn) {
         let result = "black";
 
-        if (turn) {
-            result = "white";
+        if (typeof turn === 'string' || turn instanceof String) {
+            result = turn;
+        } else {
+            if (turn) {
+                result = "white";
+            }
         }
 
         return result;
@@ -1202,7 +1253,7 @@ class Ai extends Board {
                 let piece        = pieces[validPieces[p]];
                 const oldRow     = piece.row;
                 const oldSquare  = piece.square;
-                const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare, king, opponentPieces);
+                const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare);
                 const moveKeys   = Object.keys(validMoves);
 
                 for (let v = 0; v < moveKeys.length; v++) {
@@ -1488,7 +1539,10 @@ for (let r = 0; r < ai.grid.length; r++) {
                 }
             } else if (ai.selectPiece(r, s)) {
                 if (ai.getSelectedPiece().color === 'white' && ai.getTurn() === 'white') {
-                    let validMoves = ai.getValidMoves(ai.board, ai.pieces, r, s);
+                    let totalValidPieces = ai.getValidPieces(ai.board, ai.pieces, ai.turn);
+                    let opponentPieces   = totalValidPieces[1];
+                    let king             = totalValidPieces[2];
+                    let validMoves       = ai.getValidMoves(ai.board, ai.pieces, r, s, king, opponentPieces);
 
                     if (Object.keys(validMoves).length > 0) {
                         Object.keys(validMoves).forEach(key => {
