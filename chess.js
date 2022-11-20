@@ -405,12 +405,14 @@ class Board {
         return result;
     }
 
-    kingValidMoves(board, piece, pieces, row, square, opponentPieces, king) {
+    kingValidMoves(board, piece, pieces, row, square, opponentPieces, king = false) {
         let result = {};
         // up
         let r = row - 1;
         let s = square;
         if (r >= 0) {
+            // If king is set, check if the move in question would result in the king being targeted. Otherwise, equate to true so that the checkmate logic is ignored.
+            // We can ignore it because if you can make a move on your turn to capture the opponent's king, you don't need to worry about putting yourself in check or checkmate because the game ends.
             if (!king ? true : (this.doesMoveCauseCheck(king, opponentPieces, r, s) == false)) {
                 if (board[r][s] === "empty") {
                     result[r + ',' + s] = 'highlighted';
@@ -1141,6 +1143,15 @@ class Board {
         piece.moved  = true;
     }
 
+    /**
+     * Returns the valid pieces for yourself, the opponent, and also returns your king to be used by the checkmate logic.
+     * This way we can avoid iterating over the pieces a second time for the checkmate logic.
+     * A valid piece is one that isn't captured, and has at least one valid move that could be made.
+     * @param {*} board 
+     * @param {*} pieces 
+     * @param {*} turn 
+     * @returns 
+     */
     getValidPieces(board, pieces, turn = false) {
         let myPieces = [];
         let opponentPieces = [];
