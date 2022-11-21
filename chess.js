@@ -331,7 +331,7 @@ class Board {
     /**
      * Get the valid moves for a given piece at x-y coords
      * @param {*} board 
-     * @param {*} pieces 
+     * @param {*} pieces
      * @param {*} row 
      * @param {*} square 
      * @returns 
@@ -1272,14 +1272,19 @@ class Board {
     getValidPieces(board, pieces, turn = false) {
         let myPieces = [];
         let opponentPieces = [];
-        let king;
+        let myKing;
+        let opponentKing;
 
         for (let p = 0; p < pieces.length; p++) {
             let piece = pieces[p];
             
-            // Find the king to be used by checkmate logic
-            if (piece.color === this.getTurn(turn) && piece.type === 'king') {
-                king = piece;
+            // Find the kings to be used by checkmate logic
+            if (piece.type === 'king') {
+                if (piece.color === this.getTurn(turn)) {
+                    myKing = piece;
+                } else {
+                    opponentKing = piece;
+                }
             }
 
             // If piece is not captured, and has at least 1 valid move, push to piece list according to its color
@@ -1291,7 +1296,78 @@ class Board {
             }
         }
 
-        return [myPieces, opponentPieces, king];
+        return [myPieces, opponentPieces, myKing, opponentKing];
+    }
+
+    checkGameState(board, pieces, turn = this.turn) {
+        let totalValidPieces  = this.getValidPieces(board, pieces, turn);
+        let whiteKingTargeted = false;
+        let blackKingTargeted = false;
+        let whiteValidMoves   = false;
+        let blackValidMoves   = false;
+        let whiteValidPieces;
+        let blackValidPieces;
+        let whiteKing;
+        let blackKing;
+
+        // This assigns the white and black kings according to the turn, because getValidPieces() doesn't care about the color, only if it belongs to you or the opponent
+        if (this.getTurn(turn) === 'white') {
+            whiteValidPieces = totalValidPieces[0];
+            blackValidPieces = totalValidPieces[1];
+            whiteKing        = totalValidPieces[2];
+            blackKing        = totalValidPieces[3];
+        } else {
+            whiteValidPieces = totalValidPieces[1];
+            blackValidPieces = totalValidPieces[0];
+            whiteKing        = totalValidPieces[3];
+            blackKing        = totalValidPieces[2];
+        }
+
+        // Check if either color has valid moves that don't put themselves into check
+        for (let p = 0; p < pieces.length; p++) {
+            if (whiteValidPieces.includes(p)) {
+                let wPiece = pieces[p];
+                let validMoves = this.getValidMoves(board, pieces, wPiece.row, wPiece.square, whiteKing, blackValidPieces);
+    
+                if (!!validMoves && Object.keys(validMoves).length > 0) {
+                    whiteValidMoves = true;
+                }
+            } else if (blackValidPieces.includes(p)) {
+                let bPiece = pieces[p];
+                let validMoves = this.getValidMoves(board, pieces, bPiece.row, bPiece.square, blackKing, whiteValidPieces);
+
+                if (!!validMoves && Object.keys(validMoves).length > 0) {
+                    blackValidMoves = true;
+                }
+            }
+        }
+
+        whiteKingTargeted = this.kingTargeted(board, whiteKing, pieces, blackValidPieces);
+        blackKingTargeted = this.kingTargeted(board, blackKing, pieces, whiteValidPieces);
+
+        if (whiteKingTargeted && whiteValidMoves) {
+            // white check
+            console.log("White check");
+        } else if (blackKingTargeted && blackValidMoves) {
+            // black check
+            console.log("black check");
+        } else if (!whiteValidMoves) {
+            if (whiteKingTargeted) {
+                // White checkmate
+                console.log("White checkmate");
+            } else {
+                // White stalemate
+                console.log("White stalemate");
+            }
+        } else if (!blackValidMoves) {
+            if (blackKingTargeted) {
+                // Black checkmate
+                console.log("black checkmate");
+            } else {
+                // Black stalemate
+                console.log("black stalemate");
+            }
+        }
     }
 }
 
@@ -1568,10 +1644,12 @@ for (let r = 0; r < ai.grid.length; r++) {
                     ai.movePiece(r, s);
                     ai.reloadGrid();
                     ai.switchTurns();
+                    ai.checkGameState(ai.board, ai.pieces);
                 } else if (ai.grid[r][s].classList.contains("castle")) {
                     ai.showLoadingAnimation();
                     ai.castle(r, s);
                     ai.switchTurns();
+                    ai.checkGameState(ai.board, ai.pieces);
                 }
 
                 ai.selectedPiece = null;
@@ -1579,6 +1657,8 @@ for (let r = 0; r < ai.grid.length; r++) {
 
                 // AI makes move
                 if (!ai.turn) {
+                    // This timeout function delays the AI move calculation just long enough for the DOM to be reloaded with the loading animation.
+                    // This is necessary because the DOM refreshes are synchronous, so they have to wait if there is JS to be executed first.
                     setTimeout(function() {
                         const move   = ai.getMove(ai.board, ai.pieces, ai.turn, 3);
                         const index  = parseInt(move[0]);
@@ -1596,6 +1676,7 @@ for (let r = 0; r < ai.grid.length; r++) {
 
                                 ai.switchTurns();
                                 ai.reloadGrid();
+                                ai.checkGameState(ai.board, ai.pieces);
                                 ai.hideLoadingAnimation();
                             }, 1000);
                         } else {
