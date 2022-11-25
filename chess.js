@@ -401,7 +401,7 @@ class Board {
 
     /**
      * Called by the validMove functions for the specific pieces.
-     * Moves the piece, and then checks that the king isn't targeted in the new board state, and then movees the piece back.
+     * Moves the piece, then checks that the king isn't targeted in the new board state, and then moves the piece back.
      * @param {*} king 
      * @param {*} opponentPieces 
      * @param {*} r 
@@ -415,6 +415,7 @@ class Board {
 
         if (board[r][s] === "empty" || this.getPiece(board, pieces, r, s).color !== piece.color) {
             if (board[r][s] !== 'castle') {
+
                 // Move piece temporarily
                 const captured = this.capturePiece(r, s, board, pieces, king.color);
                 const moved    = piece.moved;
@@ -1261,7 +1262,7 @@ class Board {
     }
 
     /**
-     * Returns the valid pieces for yourself, the opponent, and also returns your king to be used by the checkmate logic.
+     * Returns the valid pieces for yourself, the opponent, and also returns the kings to be used by the checkmate logic.
      * This way we can avoid iterating over the pieces a second time for the checkmate logic.
      * A valid piece is one that isn't captured, and has at least one valid move that could be made.
      * @param {*} board 
@@ -1346,26 +1347,20 @@ class Board {
         blackKingTargeted = this.kingTargeted(board, blackKing, pieces, whiteValidPieces);
 
         if (whiteKingTargeted && whiteValidMoves) {
-            // white check
             console.log("White check");
         } else if (blackKingTargeted && blackValidMoves) {
-            // black check
-            console.log("black check");
+            console.log("Black check");
         } else if (!whiteValidMoves) {
             if (whiteKingTargeted) {
-                // White checkmate
                 console.log("White checkmate");
             } else {
-                // White stalemate
                 console.log("White stalemate");
             }
         } else if (!blackValidMoves) {
             if (blackKingTargeted) {
-                // Black checkmate
-                console.log("black checkmate");
+                console.log("Black checkmate");
             } else {
-                // Black stalemate
-                console.log("black stalemate");
+                console.log("Black stalemate");
             }
         }
     }
@@ -1395,7 +1390,7 @@ class Ai extends Board {
                 let piece        = pieces[validPieces[p]];
                 const oldRow     = piece.row;
                 const oldSquare  = piece.square;
-                const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare);
+                const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare, king, opponentPieces);
                 const moveKeys   = Object.keys(validMoves);
 
                 for (let v = 0; v < moveKeys.length; v++) {
@@ -1456,21 +1451,25 @@ class Ai extends Board {
         if (steps === 0) {
             return this.getBoardValue(pieces);
         } else {
-            let validPieces = this.getValidPieces(board, pieces, false)[0];
-            let min = Infinity;
+            let totalValidPieces = this.getValidPieces(board, pieces, false);
+            let validPieces      = totalValidPieces[0];
+            let opponentPieces   = totalValidPieces[1];
+            let king             = totalValidPieces[2]; 
+            let min              = Infinity;
+
             if (validPieces.length > 0) {
                 for (let p = 0; p < validPieces.length; p++) {
                     let piece        = pieces[validPieces[p]];
                     const oldRow     = piece.row;
                     const oldSquare  = piece.square;
-                    const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare);
+                    const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare, king, opponentPieces);
                     const moveKeys   = Object.keys(validMoves);
     
                     for (let v = 0; v < moveKeys.length; v++) {
                         const newData = this.getNewData(moveKeys[v]);
     
                         if (validMoves[moveKeys[v]] !== 'castle') {
-    
+
                             // Move piece temporarily
                             const captured = this.capturePiece(newData['row'], newData['square'], board, pieces, false);
                             const moved    = piece.moved;
@@ -1519,8 +1518,10 @@ class Ai extends Board {
         if (steps === 0) {
             return this.getBoardValue(pieces);
         } else {
-            let validPieces = this.getValidPieces(board, pieces, true)[0];
-            let max = -Infinity;
+            let totalValidPieces = this.getValidPieces(board, pieces, true);
+            let validPieces      = totalValidPieces[0];
+            let max              = -Infinity;
+
             if (validPieces.length > 0) {
                 for (let p = 0; p < validPieces.length; p++) {
                     let piece        = pieces[validPieces[p]];
