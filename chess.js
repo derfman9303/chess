@@ -336,9 +336,9 @@ class Board {
      * @param {*} square 
      * @returns 
      */
-    getValidMoves(board, pieces, row, square, king = false, opponentPieces = []) {
+    getValidMoves(board, piece, pieces, row, square, king = false, opponentPieces = []) {
         let result;
-        let piece = this.getPiece(board, pieces, row, square);
+        // let piece = this.getPiece(board, pieces, row, square);
 
         switch (piece.type) {
             case 'king':
@@ -378,7 +378,7 @@ class Board {
             for (let v = 0; v < opponentPieces.length; v++) {
                 const opponentPiece = pieces[opponentPieces[v]];
                 if (!opponentPiece.captured) {
-                    const validMoves    = this.getValidMoves(board, pieces, opponentPiece.row, opponentPiece.square);
+                    const validMoves    = this.getValidMoves(board, opponentPiece, pieces, opponentPiece.row, opponentPiece.square);
                     const validMoveKeys = Object.keys(validMoves);
     
                     for (let m = 0; m < validMoveKeys.length; m++) {
@@ -1290,7 +1290,7 @@ class Board {
 
             // If piece is not captured, and has at least 1 valid move, push to piece list according to its color
             if (
-                !piece.captured && Object.keys(this.getValidMoves(board, pieces, piece.row, piece.square)).length > 0
+                !piece.captured && Object.keys(this.getValidMoves(board, piece, pieces, piece.row, piece.square)).length > 0
             ) {
                 let pieceList = piece.color === this.getTurn(turn) ? myPieces : opponentPieces;
                 pieceList.push(p);
@@ -1328,14 +1328,14 @@ class Board {
         for (let p = 0; p < pieces.length; p++) {
             if (whiteValidPieces.includes(p)) {
                 let wPiece = pieces[p];
-                let validMoves = this.getValidMoves(board, pieces, wPiece.row, wPiece.square, whiteKing, blackValidPieces);
+                let validMoves = this.getValidMoves(board, wPiece, pieces, wPiece.row, wPiece.square, whiteKing, blackValidPieces);
     
                 if (!!validMoves && Object.keys(validMoves).length > 0) {
                     whiteValidMoves = true;
                 }
             } else if (blackValidPieces.includes(p)) {
                 let bPiece = pieces[p];
-                let validMoves = this.getValidMoves(board, pieces, bPiece.row, bPiece.square, blackKing, whiteValidPieces);
+                let validMoves = this.getValidMoves(board, bPiece, pieces, bPiece.row, bPiece.square, blackKing, whiteValidPieces);
 
                 if (!!validMoves && Object.keys(validMoves).length > 0) {
                     blackValidMoves = true;
@@ -1390,7 +1390,7 @@ class Ai extends Board {
                 let piece        = pieces[validPieces[p]];
                 const oldRow     = piece.row;
                 const oldSquare  = piece.square;
-                const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare, king, opponentPieces);
+                const validMoves = this.getValidMoves(board, piece, pieces, oldRow, oldSquare, king, opponentPieces);
                 const moveKeys   = Object.keys(validMoves);
 
                 for (let v = 0; v < moveKeys.length; v++) {
@@ -1462,7 +1462,7 @@ class Ai extends Board {
                     let piece        = pieces[validPieces[p]];
                     const oldRow     = piece.row;
                     const oldSquare  = piece.square;
-                    const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare, king, opponentPieces);
+                    const validMoves = this.getValidMoves(board, piece, pieces, oldRow, oldSquare, king, opponentPieces);
                     const moveKeys   = Object.keys(validMoves);
     
                     for (let v = 0; v < moveKeys.length; v++) {
@@ -1527,7 +1527,7 @@ class Ai extends Board {
                     let piece        = pieces[validPieces[p]];
                     const oldRow     = piece.row;
                     const oldSquare  = piece.square;
-                    const validMoves = this.getValidMoves(board, pieces, oldRow, oldSquare);
+                    const validMoves = this.getValidMoves(board, piece, pieces, oldRow, oldSquare);
                     const moveKeys   = Object.keys(validMoves);
     
                     for (let v = 0; v < moveKeys.length; v++) {
@@ -1690,7 +1690,7 @@ for (let r = 0; r < ai.grid.length; r++) {
                     let totalValidPieces = ai.getValidPieces(ai.board, ai.pieces, ai.turn);
                     let opponentPieces   = totalValidPieces[1];
                     let king             = totalValidPieces[2];
-                    let validMoves       = ai.getValidMoves(ai.board, ai.pieces, r, s, king, opponentPieces);
+                    let validMoves       = ai.getValidMoves(ai.board, ai.getSelectedPiece(), ai.pieces, r, s, king, opponentPieces);
 
                     if (Object.keys(validMoves).length > 0) {
                         Object.keys(validMoves).forEach(key => {
