@@ -1288,9 +1288,7 @@ class Board {
             }
 
             // If piece is not captured, and has at least 1 valid move, push to piece list according to its color
-            if (
-                !piece.captured && Object.keys(this.getValidMoves(board, piece, pieces, piece.row, piece.square)).length > 0
-            ) {
+            if (!piece.captured && (Object.keys(this.getValidMoves(board, piece, pieces, piece.row, piece.square)).length > 0 || piece.type === 'pawn')) {
                 let pieceList = piece.color === this.getTurn(turn) ? myPieces : opponentPieces;
                 pieceList.push(p);
             }
@@ -1440,10 +1438,15 @@ class Ai extends Board {
         }
 
         const preferredMoveKeys = Object.keys(preferredMoves);
-        const randomIndex       = Math.floor(Math.random() * preferredMoveKeys.length);
-        const selectedMove      = preferredMoveKeys[randomIndex].split(',');
-        
-        return [board[selectedMove[0]][selectedMove[1]], selectedMove[2], selectedMove[3]];
+
+        if (preferredMoveKeys.length > 0) {
+            const randomIndex       = Math.floor(Math.random() * preferredMoveKeys.length);
+            const selectedMove      = preferredMoveKeys[randomIndex].split(',');
+            
+            return [board[selectedMove[0]][selectedMove[1]], selectedMove[2], selectedMove[3]];
+        } else {
+            return false;
+        }
     }
 
     mini(board, pieces, steps) {
