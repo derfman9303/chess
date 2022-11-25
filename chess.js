@@ -338,7 +338,6 @@ class Board {
      */
     getValidMoves(board, piece, pieces, row, square, king = false, opponentPieces = []) {
         let result;
-        // let piece = this.getPiece(board, pieces, row, square);
 
         switch (piece.type) {
             case 'king':
