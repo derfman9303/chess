@@ -95,13 +95,20 @@
         <div class="flex-item"></div>
     </div>
     <div id="overlay" class="hidden"></div>
-    <div id="modal" class="hidden">
+    <div id="pawn-modal" class="modal hidden">
         <h4>Select a new piece:</h4>
-        <div id="modal-row">
+        <div class="modal-row">
             <div id="queen" class="modal-square light"></div>
             <div id="rook" class="modal-square dark"></div>
             <div id="knight" class="modal-square light"></div>
             <div id="bishop" class="modal-square dark"></div>
+        </div>
+    </div>
+    <div id="endgame-modal" class="modal hidden">
+        <h4 id="endgame-title"></h4>
+        <div class="modal-row">
+            <div id="newgame-button" class="button primary">New game</div>
+            <div id="close-button" class="button">Close</div>    
         </div>
     </div>
 </body>
@@ -195,7 +202,7 @@
         opacity: 0.5;
     }
 
-    #modal {
+    .modal {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -205,9 +212,30 @@
         border-radius: 5px;
     }
 
-    #modal-row {
+    .modal-row {
         display: flex;
         flex-direction: row;
+    }
+
+    #endgame-title {
+        text-align: center;
+    }
+
+    .button {
+        padding: 10px;
+        margin: 5px;
+        border: 2px solid #07abf7;
+        border-radius: 5px;
+        color: #07abf7;
+    }
+
+    .button.primary {
+        background-color: #07abf7;
+        color: white;
+    }
+
+    .button:hover {
+        cursor: pointer;
     }
 
     #modal h4 {

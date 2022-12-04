@@ -5,6 +5,7 @@ class Board {
         this.whiteCaptured = document.getElementById('white-captured');
         this.blackCaptured = document.getElementById('black-captured');
         this.selectedPiece = null;
+        this.gameState     = false;
         this.grid          = [
             [
                 this.squares[0],
@@ -1298,6 +1299,7 @@ class Board {
     }
 
     checkGameState(board, pieces, turn = this.turn) {
+        this.gameState        = false;
         let totalValidPieces  = this.getValidPieces(board, pieces, turn);
         let whiteKingTargeted = false;
         let blackKingTargeted = false;
@@ -1344,22 +1346,48 @@ class Board {
         blackKingTargeted = this.kingTargeted(board, blackKing, pieces, whiteValidPieces);
 
         if (whiteKingTargeted && whiteValidMoves) {
-            console.log("White check");
+            // this.gameState = "White check";
         } else if (blackKingTargeted && blackValidMoves) {
-            console.log("Black check");
+            // this.gameState = "Black check";
         } else if (!whiteValidMoves) {
             if (whiteKingTargeted) {
-                console.log("White checkmate");
+                this.gameState = "Checkmate. Black wins.";
             } else {
-                console.log("White stalemate");
+                this.gameState = "Stalemate. Game over.";
             }
         } else if (!blackValidMoves) {
             if (blackKingTargeted) {
-                console.log("Black checkmate");
+                this.gameState = "Checkmate. White wins.";
             } else {
-                console.log("Black stalemate");
+                this.gameState = "Stalemate. Game over.";
             }
         }
+    }
+
+    maybeShowEndgameModal() {
+        let modal   = document.getElementById('endgame-modal');
+        let overlay = document.getElementById('overlay');
+        let title   = document.getElementById('endgame-title');
+
+        if (!!this.gameState) {
+            modal.classList.remove("hidden");
+            overlay.classList.remove("hidden");
+            title.innerHTML = this.gameState;
+        } else {
+            modal.classList.add("hidden");
+            overlay.classList.add("hidden"); 
+            title.innerHTML = "";
+        }
+    }
+
+    closeEndgameModal() {
+        let modal   = document.getElementById('endgame-modal');
+        let overlay = document.getElementById('overlay');
+        let title   = document.getElementById('endgame-title');
+
+        modal.classList.add("hidden");
+        overlay.classList.add("hidden"); 
+        title.innerHTML = "";
     }
 }
 
@@ -1637,6 +1665,14 @@ class Ai extends Board {
 
 let ai = new Ai();
 
+// Click event listeners forr the endgame modal buttons, to start a new game or close modal
+document.getElementById("close-button").addEventListener("click", function() {
+    ai.closeEndgameModal();
+});
+document.getElementById("newgame-button").addEventListener("click", function() {
+    location.reload();
+});
+
 for (let r = 0; r < ai.grid.length; r++) {
     for (let s = 0; s < ai.grid[r].length; s++) {
         ai.grid[r][s].addEventListener("click", function() {
@@ -1648,11 +1684,13 @@ for (let r = 0; r < ai.grid.length; r++) {
                     ai.reloadGrid();
                     ai.switchTurns();
                     ai.checkGameState(ai.board, ai.pieces);
+                    ai.maybeShowEndgameModal();
                 } else if (ai.grid[r][s].classList.contains("castle")) {
                     ai.showLoadingAnimation();
                     ai.castle(r, s);
                     ai.switchTurns();
                     ai.checkGameState(ai.board, ai.pieces);
+                    ai.maybeShowEndgameModal();
                 }
 
                 ai.selectedPiece = null;
@@ -1680,6 +1718,7 @@ for (let r = 0; r < ai.grid.length; r++) {
                                 ai.switchTurns();
                                 ai.reloadGrid();
                                 ai.checkGameState(ai.board, ai.pieces);
+                                ai.maybeShowEndgameModal();
                                 ai.hideLoadingAnimation();
                             }, 1000);
                         } else {
